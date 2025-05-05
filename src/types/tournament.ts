@@ -33,6 +33,19 @@ export interface Player {
   redCards: number;
   position: string;
   jerseyNumber: number;
+  nationality?: string;
+  photo?: string;
+  passportPhoto?: string;
+}
+
+export interface Staff {
+  id: string;
+  name: string;
+  academy: string;
+  role: string;
+  photo?: string;
+  passportPhoto?: string;
+  nationality?: string;
 }
 
 export interface Team {
@@ -62,4 +75,11 @@ export interface Schedule {
   location: string;
   description: string;
   type: 'match' | 'event' | 'training';
+}
+
+export interface User {
+  id: string;
+  email: string;
+  academyId: string | null;
+  role: 'admin' | 'academy' | 'viewer';
 }

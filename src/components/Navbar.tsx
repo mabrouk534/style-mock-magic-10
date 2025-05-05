@@ -1,14 +1,37 @@
 
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu, X, LogIn, User } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const userStr = localStorage.getItem("currentUser");
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setIsLoggedIn(true);
+        setUserEmail(user.email);
+      } catch (e) {
+        setIsLoggedIn(false);
+      }
+    }
+  }, []);
 
   const toggleNavbar = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser");
+    setIsLoggedIn(false);
+    setUserEmail("");
+    navigate("/");
   };
 
   return (
@@ -33,7 +56,33 @@ export const Navbar = () => {
             <Link to="/matches" className="px-3 py-2 rounded hover:bg-gray-100 transition-colors">المباريات</Link>
             <Link to="/standings" className="px-3 py-2 rounded hover:bg-gray-100 transition-colors">الترتيب</Link>
             <Link to="/rules" className="px-3 py-2 rounded hover:bg-gray-100 transition-colors">اللوائح</Link>
-            <Button className="bg-quattro-blue hover:bg-quattro-blue/90">تسجيل الدخول</Button>
+            
+            {isLoggedIn ? (
+              <div className="flex items-center space-x-4">
+                <Button 
+                  variant="outline" 
+                  className="flex items-center space-x-2"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  <User size={18} />
+                  <span>{userEmail.split('@')[0]}</span>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  onClick={handleLogout}
+                >
+                  تسجيل الخروج
+                </Button>
+              </div>
+            ) : (
+              <Button 
+                className="bg-quattro-blue hover:bg-quattro-blue/90"
+                onClick={() => navigate("/login")}
+              >
+                <LogIn className="ml-2" size={18} />
+                تسجيل الدخول
+              </Button>
+            )}
           </div>
 
           {/* Mobile Navigation Button */}
@@ -53,7 +102,43 @@ export const Navbar = () => {
               <Link to="/matches" className="px-3 py-2 rounded hover:bg-gray-100 transition-colors" onClick={toggleNavbar}>المباريات</Link>
               <Link to="/standings" className="px-3 py-2 rounded hover:bg-gray-100 transition-colors" onClick={toggleNavbar}>الترتيب</Link>
               <Link to="/rules" className="px-3 py-2 rounded hover:bg-gray-100 transition-colors" onClick={toggleNavbar}>اللوائح</Link>
-              <Button className="bg-quattro-blue hover:bg-quattro-blue/90 w-full">تسجيل الدخول</Button>
+              
+              {isLoggedIn ? (
+                <>
+                  <Button 
+                    variant="outline" 
+                    className="flex items-center justify-center"
+                    onClick={() => {
+                      navigate("/dashboard");
+                      toggleNavbar();
+                    }}
+                  >
+                    <User size={18} className="ml-2" />
+                    لوحة التحكم
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full"
+                    onClick={() => {
+                      handleLogout();
+                      toggleNavbar();
+                    }}
+                  >
+                    تسجيل الخروج
+                  </Button>
+                </>
+              ) : (
+                <Button 
+                  className="bg-quattro-blue hover:bg-quattro-blue/90 w-full"
+                  onClick={() => {
+                    navigate("/login");
+                    toggleNavbar();
+                  }}
+                >
+                  <LogIn className="ml-2" size={18} />
+                  تسجيل الدخول
+                </Button>
+              )}
             </div>
           </div>
         )}
