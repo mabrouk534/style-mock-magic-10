@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import SuperadminLayout from "@/components/SuperadminLayout";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Academy } from "@/types/tournament";
 import { academies } from "@/data/mockData";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Building } from "lucide-react";
 
 const AcademyManager = () => {
   const [academiesList, setAcademiesList] = useState<Academy[]>([]);
