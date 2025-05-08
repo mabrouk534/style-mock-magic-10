@@ -17,24 +17,50 @@ import AcademyInfo from "./pages/dashboard/AcademyInfo";
 import PlayerRegistration from "./pages/dashboard/PlayerRegistration";
 import StaffRegistration from "./pages/dashboard/StaffRegistration";
 import Settings from "./pages/dashboard/Settings";
+import SuperadminDashboard from "./pages/superadmin/Dashboard";
+import AcademyManager from "./pages/superadmin/AcademyManager";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 // Auth protected route component
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+const ProtectedRoute = ({ children, requiredRole = null }: { children: React.ReactNode, requiredRole?: string | null }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [hasRequiredRole, setHasRequiredRole] = useState<boolean>(true);
   
   useEffect(() => {
     const userStr = localStorage.getItem("currentUser");
-    setIsAuthenticated(!!userStr);
-  }, []);
+    if (!userStr) {
+      setIsAuthenticated(false);
+      return;
+    }
+    
+    try {
+      const user = JSON.parse(userStr);
+      setIsAuthenticated(true);
+      
+      // Check for role requirement if specified
+      if (requiredRole && user.role !== requiredRole) {
+        setHasRequiredRole(false);
+      }
+    } catch (e) {
+      setIsAuthenticated(false);
+    }
+  }, [requiredRole]);
   
   if (isAuthenticated === null) {
     return <div>جاري التحميل...</div>;
   }
   
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (!hasRequiredRole) {
+    return <Navigate to="/" />;
+  }
+  
+  return <>{children}</>;
 };
 
 const App = () => {
@@ -53,12 +79,16 @@ const App = () => {
             <Route path="/schedule" element={<Schedule />} />
             <Route path="/login" element={<Login />} />
             
-            {/* Dashboard routes */}
+            {/* Academy Dashboard routes */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/dashboard/academy" element={<ProtectedRoute><AcademyInfo /></ProtectedRoute>} />
             <Route path="/dashboard/players" element={<ProtectedRoute><PlayerRegistration /></ProtectedRoute>} />
             <Route path="/dashboard/staff" element={<ProtectedRoute><StaffRegistration /></ProtectedRoute>} />
             <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            
+            {/* Superadmin routes */}
+            <Route path="/superadmin" element={<ProtectedRoute requiredRole="admin"><SuperadminDashboard /></ProtectedRoute>} />
+            <Route path="/superadmin/academies" element={<ProtectedRoute requiredRole="admin"><AcademyManager /></ProtectedRoute>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
