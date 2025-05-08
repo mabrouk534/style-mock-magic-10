@@ -19,6 +19,8 @@ import StaffRegistration from "./pages/dashboard/StaffRegistration";
 import Settings from "./pages/dashboard/Settings";
 import SuperadminDashboard from "./pages/superadmin/Dashboard";
 import AcademyManager from "./pages/superadmin/AcademyManager";
+import PlayerManager from "./pages/superadmin/PlayerManager";
+import MatchManager from "./pages/superadmin/MatchManager";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -89,6 +91,8 @@ const App = () => {
             {/* Superadmin routes */}
             <Route path="/superadmin" element={<ProtectedRoute requiredRole="admin"><SuperadminDashboard /></ProtectedRoute>} />
             <Route path="/superadmin/academies" element={<ProtectedRoute requiredRole="admin"><AcademyManager /></ProtectedRoute>} />
+            <Route path="/superadmin/players" element={<ProtectedRoute requiredRole="admin"><PlayerManager /></ProtectedRoute>} />
+            <Route path="/superadmin/matches" element={<ProtectedRoute requiredRole="admin"><MatchManager /></ProtectedRoute>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
