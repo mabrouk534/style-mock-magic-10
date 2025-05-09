@@ -54,7 +54,7 @@ const Matches = () => {
             <TabsTrigger 
               value="all"
               onClick={() => setSelectedCategory('all')}
-              className="data-[state=active]:bg-quattro-blue data-[state=active]:text-white"
+              className="data-[state=active]:bg-quattro-red data-[state=active]:text-white"
             >
               جميع الفئات
             </TabsTrigger>
@@ -63,7 +63,7 @@ const Matches = () => {
                 key={category} 
                 value={category}
                 onClick={() => setSelectedCategory(category)}
-                className="data-[state=active]:bg-quattro-blue data-[state=active]:text-white"
+                className="data-[state=active]:bg-quattro-red data-[state=active]:text-white"
               >
                 {category}
               </TabsTrigger>

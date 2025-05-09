@@ -21,7 +21,14 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
     // Check if user is logged in
     const userStr = localStorage.getItem("currentUser");
     if (!userStr) {
-      navigate("/login");
+      // Create a mock user for development purposes
+      const mockUser = {
+        email: "user@example.com",
+        role: "academy",
+        academyId: "1"  // Using the first academy ID from mock data
+      };
+      localStorage.setItem("currentUser", JSON.stringify(mockUser));
+      setCurrentUser(mockUser);
       return;
     }
     
@@ -51,7 +58,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
       {/* Sidebar */}
       <div className={`bg-white shadow-lg ${sidebarOpen ? 'w-64' : 'w-20'} transition-all duration-300 flex flex-col`}>
         <div className="p-4 flex items-center justify-between border-b">
-          {sidebarOpen && <h2 className="text-xl font-semibold text-quattro-blue">لوحة التحكم</h2>}
+          {sidebarOpen && <h2 className="text-xl font-semibold text-quattro-red">لوحة التحكم</h2>}
           <button 
             onClick={() => setSidebarOpen(!sidebarOpen)} 
             className="p-2 rounded-md hover:bg-gray-100"

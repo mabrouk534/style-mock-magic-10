@@ -10,16 +10,42 @@ const Dashboard = () => {
   const [academy, setAcademy] = useState<Academy | null>(null);
   
   useEffect(() => {
+    // This function sets up mock data for testing/development
+    const setupMockAcademy = () => {
+      // Get the first academy from mock data as default
+      const defaultAcademy = academies[0];
+      console.log("Setting up mock academy:", defaultAcademy);
+      setAcademy(defaultAcademy);
+    };
+    
     const userStr = localStorage.getItem("currentUser");
     if (userStr) {
-      const user = JSON.parse(userStr);
-      if (user.academyId) {
-        // Find academy from mock data
-        const foundAcademy = academies.find(a => a.id === user.academyId);
-        if (foundAcademy) {
-          setAcademy(foundAcademy);
+      try {
+        const user = JSON.parse(userStr);
+        if (user.academyId) {
+          // Find academy from mock data
+          const foundAcademy = academies.find(a => a.id === user.academyId);
+          if (foundAcademy) {
+            console.log("Found academy for user:", foundAcademy);
+            setAcademy(foundAcademy);
+          } else {
+            // Fallback to mock data if academy not found
+            console.log("Academy not found for ID, using default");
+            setupMockAcademy();
+          }
+        } else {
+          // No academyId in user object, use mock data
+          console.log("No academyId in user object, using default");
+          setupMockAcademy();
         }
+      } catch (e) {
+        console.error("Error parsing user data:", e);
+        setupMockAcademy();
       }
+    } else {
+      // No user in localStorage, use mock data
+      console.log("No user in localStorage, using default academy");
+      setupMockAcademy();
     }
   }, []);
   
@@ -45,7 +71,7 @@ const Dashboard = () => {
           title="عدد الفئات المشاركة"
           value={academy.participatingCategories.length}
           icon={<Trophy size={24} />}
-          color="bg-quattro-blue"
+          color="bg-quattro-red"
         />
         
         <StatCard

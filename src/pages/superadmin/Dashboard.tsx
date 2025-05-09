@@ -28,7 +28,7 @@ const SuperadminDashboard = () => {
           title="عدد الأكاديميات المشاركة"
           value={totalAcademies}
           icon={<Building size={24} />}
-          color="bg-quattro-blue"
+          color="bg-quattro-red"
         />
         
         <StatCard
