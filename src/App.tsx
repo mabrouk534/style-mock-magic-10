@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -55,11 +54,11 @@ const ProtectedRoute = ({ children, requiredRole = null }: { children: React.Rea
   }
   
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
   
   if (!hasRequiredRole) {
-    return <Navigate to="/" />;
+    return <Navigate to="/dashboard" />;
   }
   
   return <>{children}</>;
@@ -73,13 +72,13 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Login />} />
+            <Route path="/home" element={<Index />} />
             <Route path="/teams" element={<Teams />} />
             <Route path="/matches" element={<Matches />} />
             <Route path="/standings" element={<Standings />} />
             <Route path="/rules" element={<Rules />} />
             <Route path="/schedule" element={<Schedule />} />
-            <Route path="/login" element={<Login />} />
             
             {/* Academy Dashboard routes */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

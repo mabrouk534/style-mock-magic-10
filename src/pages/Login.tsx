@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LogIn } from "lucide-react";
+import { LogIn, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { Separator } from "@/components/ui/separator";
 
 // Dummy users for mock data
 const mockUsers = [
@@ -45,6 +46,27 @@ const Login = () => {
     },
   });
 
+  const handleSuccessfulLogin = (user: any) => {
+    // Store user info in localStorage
+    localStorage.setItem("currentUser", JSON.stringify({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      academyId: user.academyId,
+    }));
+
+    toast({
+      title: "تم تسجيل الدخول بنجاح",
+      description: "مرحباً بك في نظام بطولة كواترو",
+    });
+
+    if (user.role === "admin") {
+      navigate("/superadmin");
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
   const onSubmit = (values: FormValues) => {
     setLoading(true);
 
@@ -55,24 +77,7 @@ const Login = () => {
       );
 
       if (user) {
-        // Store user info in localStorage
-        localStorage.setItem("currentUser", JSON.stringify({
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          academyId: user.academyId,
-        }));
-
-        toast({
-          title: "تم تسجيل الدخول بنجاح",
-          description: "مرحباً بك في نظام بطولة كواترو",
-        });
-
-        if (user.role === "academy") {
-          navigate("/dashboard");
-        } else {
-          navigate("/");
-        }
+        handleSuccessfulLogin(user);
       } else {
         toast({
           variant: "destructive",
@@ -83,6 +88,17 @@ const Login = () => {
       
       setLoading(false);
     }, 1000);
+  };
+
+  const handleAutoAdminLogin = () => {
+    setLoading(true);
+    setTimeout(() => {
+      const adminUser = mockUsers.find(user => user.role === "admin");
+      if (adminUser) {
+        handleSuccessfulLogin(adminUser);
+      }
+      setLoading(false);
+    }, 500);
   };
 
   return (
@@ -146,6 +162,22 @@ const Login = () => {
             </Button>
           </form>
         </Form>
+
+        <div className="pt-4">
+          <Separator className="my-4" />
+          <div className="text-center text-sm mb-4 text-gray-500">
+            تسجيل دخول سريع للتجربة
+          </div>
+          <Button 
+            onClick={handleAutoAdminLogin} 
+            variant="outline" 
+            className="w-full border-quattro-blue text-quattro-blue hover:bg-quattro-blue/10"
+            disabled={loading}
+          >
+            <UserRound className="ml-2" size={18} />
+            دخول كمشرف النظام
+          </Button>
+        </div>
       </div>
     </div>
   );
