@@ -20,7 +20,7 @@ const SuperadminLayout = ({ children, title }: SuperadminLayoutProps) => {
     // Check if user is logged in
     const userStr = localStorage.getItem("currentUser");
     if (!userStr) {
-      navigate("/login");
+      navigate("/");
       return;
     }
     
@@ -39,7 +39,7 @@ const SuperadminLayout = ({ children, title }: SuperadminLayoutProps) => {
       setCurrentUser(user);
     } catch (e) {
       localStorage.removeItem("currentUser");
-      navigate("/login");
+      navigate("/");
     }
   }, [navigate, toast]);
   
@@ -48,7 +48,7 @@ const SuperadminLayout = ({ children, title }: SuperadminLayoutProps) => {
     toast({
       title: "تم تسجيل الخروج بنجاح",
     });
-    navigate("/login");
+    navigate("/");
   };
   
   if (!currentUser) {

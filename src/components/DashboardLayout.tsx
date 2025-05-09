@@ -37,7 +37,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
       setCurrentUser(user);
     } catch (e) {
       localStorage.removeItem("currentUser");
-      navigate("/login");
+      navigate("/");
     }
   }, [navigate]);
   
@@ -46,7 +46,7 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
     toast({
       title: "تم تسجيل الخروج بنجاح",
     });
-    navigate("/login");
+    navigate("/");
   };
   
   if (!currentUser) {
