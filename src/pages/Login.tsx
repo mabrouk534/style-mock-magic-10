@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LogIn, UserRound } from "lucide-react";
+import { LogIn, UserRound, School } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -101,6 +101,17 @@ const Login = () => {
     }, 500);
   };
 
+  const handleAutoAcademyLogin = () => {
+    setLoading(true);
+    setTimeout(() => {
+      const academyUser = mockUsers.find(user => user.role === "academy");
+      if (academyUser) {
+        handleSuccessfulLogin(academyUser);
+      }
+      setLoading(false);
+    }, 500);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
@@ -148,7 +159,7 @@ const Login = () => {
             
             <Button 
               type="submit" 
-              className="w-full bg-quattro-blue hover:bg-quattro-blue/90"
+              className="w-full bg-quattro-red hover:bg-quattro-red/90"
               disabled={loading}
             >
               {loading ? (
@@ -168,15 +179,27 @@ const Login = () => {
           <div className="text-center text-sm mb-4 text-gray-500">
             تسجيل دخول سريع للتجربة
           </div>
-          <Button 
-            onClick={handleAutoAdminLogin} 
-            variant="outline" 
-            className="w-full border-quattro-blue text-quattro-blue hover:bg-quattro-blue/10"
-            disabled={loading}
-          >
-            <UserRound className="ml-2" size={18} />
-            دخول كمشرف النظام
-          </Button>
+          <div className="space-y-3">
+            <Button 
+              onClick={handleAutoAdminLogin} 
+              variant="outline" 
+              className="w-full border-quattro-red text-quattro-red hover:bg-quattro-red/10"
+              disabled={loading}
+            >
+              <UserRound className="ml-2" size={18} />
+              دخول كمشرف النظام
+            </Button>
+            
+            <Button 
+              onClick={handleAutoAcademyLogin} 
+              variant="outline" 
+              className="w-full border-quattro-red text-quattro-red hover:bg-quattro-red/10"
+              disabled={loading}
+            >
+              <School className="ml-2" size={18} />
+              تسجيل كأكاديمية
+            </Button>
+          </div>
         </div>
       </div>
     </div>
