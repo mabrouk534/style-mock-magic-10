@@ -60,7 +60,7 @@ const SuperadminLayout = ({ children, title }: SuperadminLayoutProps) => {
       {/* Sidebar */}
       <div className={`bg-white shadow-lg ${sidebarOpen ? 'w-64' : 'w-20'} transition-all duration-300 flex flex-col`}>
         <div className="p-4 flex items-center justify-between border-b">
-          {sidebarOpen && <h2 className="text-xl font-semibold text-quattro-blue">لوحة المشرف</h2>}
+          {sidebarOpen && <h2 className="text-xl font-semibold text-quattro-red">لوحة المشرف</h2>}
           <button 
             onClick={() => setSidebarOpen(!sidebarOpen)} 
             className="p-2 rounded-md hover:bg-gray-100"
@@ -81,12 +81,12 @@ const SuperadminLayout = ({ children, title }: SuperadminLayoutProps) => {
               {sidebarOpen && <span>إدارة الأكاديميات</span>}
             </Link>
             
-            <Link to="/dashboard/players" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-gray-100">
+            <Link to="/superadmin/players" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-gray-100">
               <Users className="ml-3" />
               {sidebarOpen && <span>إدارة اللاعبين</span>}
             </Link>
             
-            <Link to="/dashboard/matches" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-gray-100">
+            <Link to="/superadmin/matches" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-gray-100">
               <Trophy className="ml-3" />
               {sidebarOpen && <span>إدارة المباريات</span>}
             </Link>
