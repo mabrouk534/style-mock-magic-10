@@ -19,11 +19,15 @@ const MatchesManagement = () => {
   // Filter matches based on selected category and search query
   const filteredMatches = matches
     .filter(match => selectedCategory === 'all' || match.category === selectedCategory)
-    .filter(match => 
-      match.team1.name.includes(searchQuery) || 
-      match.team2.name.includes(searchQuery) ||
-      match.stadium.includes(searchQuery)
-    );
+    .filter(match => {
+      const homeTeam = academies.find(academy => academy.id === match.homeTeam)?.name || '';
+      const awayTeam = academies.find(academy => academy.id === match.awayTeam)?.name || '';
+      const venue = match.venue;
+      
+      return homeTeam.includes(searchQuery) || 
+             awayTeam.includes(searchQuery) ||
+             venue.includes(searchQuery);
+    });
 
   // Group matches by date
   const groupedMatches: Record<string, typeof matches> = {};
@@ -123,32 +127,39 @@ const MatchesManagement = () => {
                     {formatDate(date)}
                   </h3>
                   <div className="space-y-4">
-                    {groupedMatches[date].map(match => (
-                      <Card key={match.id} className="p-4">
-                        <div className="flex justify-between items-center">
-                          <div className="flex-1">
-                            <div className="flex justify-between items-center">
-                              <div className="text-lg font-medium">{match.team1.name}</div>
-                              <div className="text-center px-4">
-                                <div className="text-xl font-bold">
-                                  {match.score ? `${match.score.team1} - ${match.score.team2}` : "VS"}
+                    {groupedMatches[date].map(match => {
+                      const homeTeam = academies.find(academy => academy.id === match.homeTeam);
+                      const awayTeam = academies.find(academy => academy.id === match.awayTeam);
+                      
+                      return (
+                        <Card key={match.id} className="p-4">
+                          <div className="flex justify-between items-center">
+                            <div className="flex-1">
+                              <div className="flex justify-between items-center">
+                                <div className="text-lg font-medium">{homeTeam?.name}</div>
+                                <div className="text-center px-4">
+                                  <div className="text-xl font-bold">
+                                    {match.status !== 'scheduled' 
+                                      ? `${match.homeScore} - ${match.awayScore}` 
+                                      : "VS"}
+                                  </div>
+                                  <div className="text-sm text-gray-500">{match.time}</div>
                                 </div>
-                                <div className="text-sm text-gray-500">{match.time}</div>
+                                <div className="text-lg font-medium">{awayTeam?.name}</div>
                               </div>
-                              <div className="text-lg font-medium">{match.team2.name}</div>
+                            </div>
+                            <div className="flex gap-2 mr-4">
+                              <Button variant="outline" size="sm">تعديل</Button>
+                              <Button variant="outline" size="sm" className="text-red-600 hover:text-white hover:bg-red-600">حذف</Button>
                             </div>
                           </div>
-                          <div className="flex gap-2 mr-4">
-                            <Button variant="outline" size="sm">تعديل</Button>
-                            <Button variant="outline" size="sm" className="text-red-600 hover:text-white hover:bg-red-600">حذف</Button>
+                          <div className="mt-2 text-sm text-gray-500">
+                            <span className="ml-3">{match.category}</span>
+                            <span>{match.venue}</span>
                           </div>
-                        </div>
-                        <div className="mt-2 text-sm text-gray-500">
-                          <span className="ml-3">{match.category}</span>
-                          <span>{match.stadium}</span>
-                        </div>
-                      </Card>
-                    ))}
+                        </Card>
+                      );
+                    })}
                   </div>
                 </div>
               ))
