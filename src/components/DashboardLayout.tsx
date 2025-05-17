@@ -1,7 +1,7 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Menu, Users, UserCog, Building, Settings } from "lucide-react";
+import { LogOut, Menu, Users, UserCog, Building, Settings, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -82,6 +82,11 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
             <Link to="/dashboard/staff" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-gray-100">
               <UserCog className="ml-3" />
               {sidebarOpen && <span>الجهاز الفني والإداري</span>}
+            </Link>
+            
+            <Link to="/dashboard/matches" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-quattro-red hover:text-white">
+              <Calendar className="ml-3" />
+              {sidebarOpen && <span>جدول المباريات</span>}
             </Link>
             
             <Link to="/dashboard/settings" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-gray-100">
