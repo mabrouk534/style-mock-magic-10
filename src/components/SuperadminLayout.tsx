@@ -91,7 +91,7 @@ const SuperadminLayout = ({ children, title }: SuperadminLayoutProps) => {
               {sidebarOpen && <span>إدارة المباريات</span>}
             </Link>
             
-            <Link to="/superadmin/matches-management" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-quattro-red hover:text-white">
+            <Link to="/superadmin/matches-management" className="flex items-center px-4 py-3 text-gray-700 bg-quattro-red text-white rounded-md hover:bg-quattro-red hover:text-white">
               <Calendar className="ml-3" />
               {sidebarOpen && <span>إدارة جدول المباريات</span>}
             </Link>

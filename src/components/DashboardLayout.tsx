@@ -21,20 +21,19 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
     // Check if user is logged in
     const userStr = localStorage.getItem("currentUser");
     if (!userStr) {
-      // Create a mock user for development purposes
-      const mockUser = {
-        email: "user@example.com",
-        role: "academy",
-        academyId: "1"  // Using the first academy ID from mock data
-      };
-      localStorage.setItem("currentUser", JSON.stringify(mockUser));
-      setCurrentUser(mockUser);
+      navigate("/");
       return;
     }
     
     try {
       const user = JSON.parse(userStr);
       setCurrentUser(user);
+      
+      // If user is admin, redirect to admin dashboard
+      if (user.role === 'admin') {
+        navigate("/superadmin");
+        return;
+      }
     } catch (e) {
       localStorage.removeItem("currentUser");
       navigate("/");
@@ -95,6 +94,18 @@ const DashboardLayout = ({ children, title }: DashboardLayoutProps) => {
             </Link>
           </nav>
         </div>
+        
+        {currentUser.role === 'admin' && (
+          <div className="p-4 border-t border-b">
+            <Link 
+              to="/superadmin"
+              className="flex items-center px-4 py-3 text-white bg-quattro-red rounded-md hover:bg-red-700"
+            >
+              <Settings className="ml-3" />
+              {sidebarOpen && <span>لوحة تحكم المشرف</span>}
+            </Link>
+          </div>
+        )}
         
         <div className="p-4 border-t">
           <Button 
