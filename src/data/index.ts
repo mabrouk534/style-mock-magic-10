@@ -7,3 +7,5 @@ export * from './standings';
 export * from './tournament';
 export * from './matchDetails';
 export * from './tournamentProgram';
+export * from './tournamentResults';
+export * from './teamRankings';

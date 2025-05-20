@@ -1,7 +1,7 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { LogOut, Menu, Users, Building, LayoutDashboard, Trophy, Calendar } from "lucide-react";
+import { LogOut, Menu, Users, Building, LayoutDashboard, Trophy, Calendar, List, Table } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -91,9 +91,24 @@ const SuperadminLayout = ({ children, title }: SuperadminLayoutProps) => {
               {sidebarOpen && <span>إدارة المباريات</span>}
             </Link>
             
-            <Link to="/superadmin/matches-management" className="flex items-center px-4 py-3 text-gray-700 bg-quattro-red text-white rounded-md hover:bg-quattro-red hover:text-white">
+            <Link to="/superadmin/matches-management" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-gray-100">
               <Calendar className="ml-3" />
               {sidebarOpen && <span>إدارة جدول المباريات</span>}
+            </Link>
+
+            <Link to="/superadmin/tournament-program" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-gray-100">
+              <List className="ml-3" />
+              {sidebarOpen && <span>برنامج المعسكر</span>}
+            </Link>
+
+            <Link to="/superadmin/match-results" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-gray-100">
+              <Trophy className="ml-3" />
+              {sidebarOpen && <span>نتائج المباريات</span>}
+            </Link>
+
+            <Link to="/superadmin/team-rankings" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-gray-100">
+              <Table className="ml-3" />
+              {sidebarOpen && <span>ترتيب الفرق</span>}
             </Link>
           </nav>
         </div>

@@ -24,6 +24,9 @@ import PlayerManager from "./pages/superadmin/PlayerManager";
 import MatchManager from "./pages/superadmin/MatchManager";
 import MatchesManagement from "./pages/superadmin/MatchesManagement";
 import MatchReport from "./pages/superadmin/MatchReport";
+import TournamentProgram from "./pages/superadmin/TournamentProgram";
+import MatchResults from "./pages/superadmin/MatchResults";
+import TeamRankings from "./pages/superadmin/TeamRankings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -99,6 +102,9 @@ const App = () => {
             <Route path="/superadmin/matches" element={<ProtectedRoute requiredRole="admin"><MatchManager /></ProtectedRoute>} />
             <Route path="/superadmin/matches-management" element={<ProtectedRoute requiredRole="admin"><MatchesManagement /></ProtectedRoute>} />
             <Route path="/superadmin/match-report/:matchId" element={<ProtectedRoute requiredRole="admin"><MatchReport /></ProtectedRoute>} />
+            <Route path="/superadmin/tournament-program" element={<ProtectedRoute requiredRole="admin"><TournamentProgram /></ProtectedRoute>} />
+            <Route path="/superadmin/match-results" element={<ProtectedRoute requiredRole="admin"><MatchResults /></ProtectedRoute>} />
+            <Route path="/superadmin/team-rankings" element={<ProtectedRoute requiredRole="admin"><TeamRankings /></ProtectedRoute>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
