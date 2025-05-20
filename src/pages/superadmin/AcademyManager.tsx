@@ -21,8 +21,9 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Academy } from "@/types/tournament";
-import { Plus, Pencil, Trash2, Building } from "lucide-react"; // Added missing imports
+import { Plus, Pencil, Trash2, Building } from "lucide-react"; 
 import { academies } from "@/data";
 
 const AcademyManager = () => {

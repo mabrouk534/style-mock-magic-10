@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
+import { Label } from "@/components/ui/label";
 import { 
   Dialog,
   DialogContent,
@@ -113,6 +114,7 @@ const MatchReport = () => {
     }
   };
   
+  // Get player name helper function
   const getPlayerName = (playerId: string) => {
     const player = players.find(p => p.id === playerId);
     return player ? player.name : "لاعب غير معروف";
@@ -186,6 +188,27 @@ const MatchReport = () => {
       ...prev,
       [field]: value
     }));
+  };
+
+  // Extract the lineups and events from the edited data
+  const playerInLineups = (playerId: string, editedLineups: any) => {
+    return (
+      (editedLineups.home && editedLineups.home.includes(playerId)) || 
+      (editedLineups.away && editedLineups.away.includes(playerId))
+    );
+  };
+
+  // Event counting functions
+  const countPlayerGoals = (playerId: string, events: any[]) => {
+    return events.filter(e => e.player === playerId && e.type === "goal").length;
+  };
+  
+  const countPlayerYellowCards = (playerId: string, events: any[]) => {
+    return events.filter(e => e.player === playerId && e.type === "yellowCard").length;
+  };
+  
+  const countPlayerRedCards = (playerId: string, events: any[]) => {
+    return events.filter(e => e.player === playerId && e.type === "redCard").length;
   };
 
   return (
@@ -803,13 +826,13 @@ const MatchReport = () => {
               <tbody>
                 {players
                   .filter(player => 
-                    lineups.home.includes(player.id) || lineups.away.includes(player.id)
+                    playerInLineups(player.id, editedLineups)
                   )
                   .map((player, index) => {
                     // Count goals and cards from events
-                    const playerGoals = events.filter(e => e.player === player.id && e.type === "goal").length;
-                    const playerYellowCards = events.filter(e => e.player === player.id && e.type === "yellowCard").length;
-                    const playerRedCards = events.filter(e => e.player === player.id && e.type === "redCard").length;
+                    const playerGoals = countPlayerGoals(player.id, editedEvents);
+                    const playerYellowCards = countPlayerYellowCards(player.id, editedEvents);
+                    const playerRedCards = countPlayerRedCards(player.id, editedEvents);
                     
                     return (
                       <tr key={player.id}>
@@ -824,7 +847,8 @@ const MatchReport = () => {
                       </tr>
                     );
                   })}
-                {(lineups.home.length === 0 && lineups.away.length === 0) && (
+                {(!editedLineups.home || editedLineups.home.length === 0) && 
+                 (!editedLineups.away || editedLineups.away.length === 0) && (
                   <tr>
                     <td colSpan={6} className="border border-gray-300 p-4 text-center text-gray-500">
                       لا توجد بيانات للاعبين في هذه المباراة
