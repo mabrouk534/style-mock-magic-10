@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import SuperadminLayout from "@/components/SuperadminLayout";
@@ -12,7 +11,7 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { Match } from "@/types/tournament";
-import { matches, academies, players, matchEvents, matchStats, matchLineups, matchReferees } from "@/data/mockData";
+import { matches, academies, players, matchEvents, matchStats, matchLineups, matchReferees } from "@/data";
 import { Separator } from "@/components/ui/separator";
 
 const MatchReport = () => {
@@ -332,7 +331,7 @@ const MatchReport = () => {
         </CardContent>
       </Card>
       
-      {/* Match Report Table (similar to what was shown in the image) */}
+      {/* Match Report Table */}
       <Card>
         <CardHeader>
           <CardTitle>جدول تقرير المباراة الرسمي</CardTitle>
