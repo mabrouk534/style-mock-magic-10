@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import SuperadminLayout from "@/components/SuperadminLayout";
 import { Button } from "@/components/ui/button";
@@ -453,7 +452,7 @@ const PlayerManager = () => {
                 <SelectValue placeholder="جميع الفئات" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">جميع الفئات</SelectItem>
+                <SelectItem value="all">جميع الفئات</SelectItem>
                 <SelectItem value="تحت 14 سنة">تحت 14 سنة</SelectItem>
                 <SelectItem value="تحت 16 سنة">تحت 16 سنة</SelectItem>
                 <SelectItem value="تحت 18 سنة">تحت 18 سنة</SelectItem>
@@ -470,7 +469,7 @@ const PlayerManager = () => {
                 <SelectValue placeholder="جميع الأكاديميات" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">جميع الأكاديميات</SelectItem>
+                <SelectItem value="all">جميع الأكاديميات</SelectItem>
                 {academies.map((academy) => (
                   <SelectItem key={academy.id} value={academy.id}>
                     {academy.name}
