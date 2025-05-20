@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import SuperadminLayout from "@/components/SuperadminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Academy } from "@/types/tournament";
-import { Plus, Pencil, Trash2, Building } from "lucide-react"; 
+import { Plus, Pencil, Trash2, Building, Upload } from "lucide-react"; 
 import { academies } from "@/data";
 
 const AcademyManager = () => {
@@ -38,6 +38,9 @@ const AcademyManager = () => {
     logo: "",
     participatingCategories: [] as string[]
   });
+  const [previewLogo, setPreviewLogo] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   
   const { toast } = useToast();
   
@@ -49,6 +52,21 @@ const AcademyManager = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setPreviewLogo(base64String);
+        setFormData(prev => ({ ...prev, logo: base64String }));
+      };
+      
+      reader.readAsDataURL(file);
+    }
   };
   
   const handleCategoryToggle = (category: string) => {
@@ -76,6 +94,7 @@ const AcademyManager = () => {
       logo: "",
       participatingCategories: []
     });
+    setPreviewLogo(null);
     setIsEditMode(false);
     setCurrentAcademy(null);
   };
@@ -91,6 +110,8 @@ const AcademyManager = () => {
       logo: academy.logo,
       participatingCategories: [...academy.participatingCategories]
     });
+    setPreviewLogo(academy.logo);
+    setDialogOpen(true);
   };
   
   const handleDeleteAcademy = (id: string) => {
@@ -128,6 +149,18 @@ const AcademyManager = () => {
     }
     
     resetForm();
+    setDialogOpen(false);
+  };
+
+  const handleTriggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleOpenDialog = () => {
+    resetForm();
+    setDialogOpen(true);
   };
 
   return (
@@ -140,104 +173,136 @@ const AcademyManager = () => {
           </p>
         </div>
         
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2" onClick={resetForm}>
-              <Plus size={16} />
-              <span>إضافة أكاديمية</span>
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>{isEditMode ? "تعديل أكاديمية" : "إضافة أكاديمية جديدة"}</DialogTitle>
-            </DialogHeader>
-            
-            <form onSubmit={handleSubmit}>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">اسم الأكاديمية</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="col-span-3"
-                    required
-                  />
-                </div>
-                
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="country" className="text-right">البلد</Label>
-                  <Input
-                    id="country"
-                    name="country"
-                    value={formData.country}
-                    onChange={handleInputChange}
-                    className="col-span-3"
-                    required
-                  />
-                </div>
-                
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="coordinator" className="text-right">المنسق</Label>
-                  <Input
-                    id="coordinator"
-                    name="coordinator"
-                    value={formData.coordinator}
-                    onChange={handleInputChange}
-                    className="col-span-3"
-                    required
-                  />
-                </div>
-                
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="contactNumber" className="text-right">رقم التواصل</Label>
-                  <Input
-                    id="contactNumber"
-                    name="contactNumber"
-                    value={formData.contactNumber}
-                    onChange={handleInputChange}
-                    className="col-span-3"
-                    required
-                  />
-                </div>
-                
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="logo" className="text-right">شعار الأكاديمية (URL)</Label>
-                  <Input
-                    id="logo"
-                    name="logo"
-                    value={formData.logo}
-                    onChange={handleInputChange}
-                    className="col-span-3"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-4 items-start gap-4">
-                  <Label className="text-right mt-2">الفئات المشاركة</Label>
-                  <div className="col-span-3 flex flex-wrap gap-2">
-                    {["تحت 14 سنة", "تحت 16 سنة", "تحت 18 سنة"].map((category) => (
+        <Button className="flex items-center gap-2" onClick={handleOpenDialog}>
+          <Plus size={16} />
+          <span>إضافة أكاديمية</span>
+        </Button>
+      </div>
+      
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{isEditMode ? "تعديل أكاديمية" : "إضافة أكاديمية جديدة"}</DialogTitle>
+          </DialogHeader>
+          
+          <form onSubmit={handleSubmit}>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">اسم الأكاديمية</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="col-span-3"
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="country" className="text-right">البلد</Label>
+                <Input
+                  id="country"
+                  name="country"
+                  value={formData.country}
+                  onChange={handleInputChange}
+                  className="col-span-3"
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="coordinator" className="text-right">المنسق</Label>
+                <Input
+                  id="coordinator"
+                  name="coordinator"
+                  value={formData.coordinator}
+                  onChange={handleInputChange}
+                  className="col-span-3"
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="contactNumber" className="text-right">رقم التواصل</Label>
+                <Input
+                  id="contactNumber"
+                  name="contactNumber"
+                  value={formData.contactNumber}
+                  onChange={handleInputChange}
+                  className="col-span-3"
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label htmlFor="logo" className="text-right mt-2">شعار الأكاديمية</Label>
+                <div className="col-span-3">
+                  <div className="flex flex-col items-center space-y-4">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleLogoChange}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                    
+                    {previewLogo ? (
+                      <div className="relative">
+                        <img 
+                          src={previewLogo} 
+                          alt="Preview" 
+                          className="w-32 h-32 object-contain border rounded-md"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="absolute bottom-0 right-0 bg-white"
+                          onClick={handleTriggerFileInput}
+                        >
+                          <Pencil size={14} />
+                        </Button>
+                      </div>
+                    ) : (
                       <Button
-                        key={category}
                         type="button"
-                        variant={formData.participatingCategories.includes(category) ? "default" : "outline"}
-                        className="text-xs"
-                        onClick={() => handleCategoryToggle(category)}
+                        variant="outline"
+                        onClick={handleTriggerFileInput}
+                        className="w-32 h-32 flex flex-col items-center justify-center border-dashed border-2"
                       >
-                        {category}
+                        <Upload size={24} className="mb-2" />
+                        <span className="text-sm">رفع شعار</span>
                       </Button>
-                    ))}
+                    )}
                   </div>
                 </div>
               </div>
               
-              <DialogFooter>
-                <Button type="submit">{isEditMode ? "تحديث" : "إضافة"}</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label className="text-right mt-2">الفئات المشاركة</Label>
+                <div className="col-span-3 flex flex-wrap gap-2">
+                  {["تحت 14 سنة", "تحت 16 سنة", "تحت 18 سنة"].map((category) => (
+                    <Button
+                      key={category}
+                      type="button"
+                      variant={formData.participatingCategories.includes(category) ? "default" : "outline"}
+                      className="text-xs"
+                      onClick={() => handleCategoryToggle(category)}
+                    >
+                      {category}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button type="submit">{isEditMode ? "تحديث" : "إضافة"}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {academiesList.map((academy) => (
@@ -259,7 +324,7 @@ const AcademyManager = () => {
               <div className="flex flex-col gap-3">
                 <div className="flex items-center">
                   {academy.logo ? (
-                    <img src={academy.logo} alt={academy.name} className="w-16 h-16 object-contain mr-4" />
+                    <img src={academy.logo} alt={academy.name} className="w-16 h-16 object-contain mr-4 rounded-md" />
                   ) : (
                     <div className="w-16 h-16 bg-gray-100 flex items-center justify-center mr-4 rounded-md">
                       <Building size={24} />
