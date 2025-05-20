@@ -36,6 +36,12 @@ export interface Player {
   nationality?: string;
   photo?: string;
   passportPhoto?: string;
+  
+  // Added properties for cards
+  cardType?: string;
+  cardNumber?: string;
+  cardExpiry?: string;
+  cardImage?: string;
 }
 
 export interface Staff {
