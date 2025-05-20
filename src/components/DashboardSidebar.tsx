@@ -30,31 +30,17 @@ export const DashboardSidebar: React.FC = () => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const sidebarLinks = [
+  // Main navigation items
+  const mainNavItems = [
     {
       to: '/dashboard',
       icon: <LayoutDashboard size={20} />,
       label: 'لوحة التحكم',
     },
     {
-      to: '/dashboard/academy',
-      icon: <FileText size={20} />,
-      label: 'بيانات الأكاديمية',
-    },
-    {
-      to: '/dashboard/players',
-      icon: <Users size={20} />,
-      label: 'تسجيل اللاعبين',
-    },
-    {
-      to: '/dashboard/staff',
-      icon: <UserRound size={20} />,
-      label: 'تسجيل الفريق الفني',
-    },
-    {
       to: '/dashboard/matches',
-      icon: <FileText size={20} />,
-      label: 'جدول المباريات',
+      icon: <Calendar size={20} />,
+      label: 'المباريات',
     },
     {
       to: '/dashboard/tournament-program',
@@ -71,6 +57,25 @@ export const DashboardSidebar: React.FC = () => {
       icon: <Award size={20} />,
       label: 'ترتيب الفرق',
     },
+  ];
+
+  // Academy management items
+  const academyManagementItems = [
+    {
+      to: '/dashboard/academy',
+      icon: <FileText size={20} />,
+      label: 'بيانات الأكاديمية',
+    },
+    {
+      to: '/dashboard/players',
+      icon: <Users size={20} />,
+      label: 'تسجيل اللاعبين',
+    },
+    {
+      to: '/dashboard/staff',
+      icon: <UserRound size={20} />,
+      label: 'تسجيل الفريق الفني',
+    },
     {
       to: '/dashboard/settings',
       icon: <Settings size={20} />,
@@ -83,16 +88,37 @@ export const DashboardSidebar: React.FC = () => {
       <div className="mb-6 text-center">
         <h2 className="text-lg font-bold text-quattro-red">لوحة تحكم الأكاديمية</h2>
       </div>
-      <div className="flex flex-col space-y-1">
-        {sidebarLinks.map((link, index) => (
-          <SidebarLink
-            key={index}
-            to={link.to}
-            icon={link.icon}
-            label={link.label}
-            isActive={currentPath === link.to}
-          />
-        ))}
+      
+      {/* Main Navigation Section */}
+      <div className="mb-6">
+        <h3 className="px-4 mb-2 text-xs font-semibold text-gray-500">الرئيسية</h3>
+        <div className="flex flex-col space-y-1">
+          {mainNavItems.map((item, index) => (
+            <SidebarLink
+              key={index}
+              to={item.to}
+              icon={item.icon}
+              label={item.label}
+              isActive={currentPath === item.to}
+            />
+          ))}
+        </div>
+      </div>
+      
+      {/* Academy Management Section */}
+      <div className="mb-6">
+        <h3 className="px-4 mb-2 text-xs font-semibold text-gray-500">إدارة الأكاديمية</h3>
+        <div className="flex flex-col space-y-1">
+          {academyManagementItems.map((item, index) => (
+            <SidebarLink
+              key={index}
+              to={item.to}
+              icon={item.icon}
+              label={item.label}
+              isActive={currentPath === item.to}
+            />
+          ))}
+        </div>
       </div>
     </aside>
   );
