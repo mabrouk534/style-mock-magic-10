@@ -8,13 +8,12 @@ import { Award } from "lucide-react";
 import { teamRankings } from "@/data";
 
 const TeamRankings = () => {
-  const [selectedCategory, setSelectedCategory] = useState<string>("تحت 14 سنة");
+  // Get categories from the teamRankings object keys
+  const categories = Object.keys(teamRankings);
+  const [selectedCategory, setSelectedCategory] = useState<string>(categories[0]);
   
-  // Get unique categories
-  const categories = [...new Set(teamRankings.map(ranking => ranking.category))];
-  
-  // Get rankings for selected category
-  const rankings = teamRankings.find(ranking => ranking.category === selectedCategory);
+  // Get teams for the selected category
+  const rankingsForCategory = teamRankings[selectedCategory] || [];
 
   return (
     <DashboardLayout title="ترتيب الفرق">
@@ -67,16 +66,16 @@ const TeamRankings = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rankings?.teams.map((team, index) => (
-                <TableRow key={team.id} className={index < 3 ? "bg-green-50" : ""}>
-                  <TableCell className={index < 3 ? "font-bold" : ""}>
-                    {index + 1}
+              {rankingsForCategory.map((team) => (
+                <TableRow key={team.id} className={team.rank <= 3 ? "bg-green-50" : ""}>
+                  <TableCell className={team.rank <= 3 ? "font-bold" : ""}>
+                    {team.rank}
                   </TableCell>
-                  <TableCell className="font-medium">{team.name}</TableCell>
-                  <TableCell className="text-center">{team.played}</TableCell>
-                  <TableCell className="text-center">{team.won}</TableCell>
-                  <TableCell className="text-center">{team.drawn}</TableCell>
-                  <TableCell className="text-center">{team.lost}</TableCell>
+                  <TableCell className="font-medium">{team.teamName}</TableCell>
+                  <TableCell className="text-center">{team.gamesPlayed}</TableCell>
+                  <TableCell className="text-center">{team.wins}</TableCell>
+                  <TableCell className="text-center">{team.draws}</TableCell>
+                  <TableCell className="text-center">{team.losses}</TableCell>
                   <TableCell className="text-center">{team.goalsFor}</TableCell>
                   <TableCell className="text-center">{team.goalsAgainst}</TableCell>
                   <TableCell className="text-center">{team.goalDifference}</TableCell>
