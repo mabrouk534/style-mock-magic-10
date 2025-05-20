@@ -12,72 +12,8 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { Match } from "@/types/tournament";
-import { matches, academies, players } from "@/data/mockData";
+import { matches, academies, players, matchEvents, matchStats, matchLineups, matchReferees } from "@/data/mockData";
 import { Separator } from "@/components/ui/separator";
-
-// Mock match events data
-const mockEvents = {
-  "match-1": [
-    { time: "15", type: "goal", player: "1", team: "1", description: "هدف مباشر من داخل منطقة الجزاء" },
-    { time: "35", type: "yellowCard", player: "1", team: "1", description: "إعاقة لاعب منافس" },
-    { time: "42", type: "goal", player: "2", team: "2", description: "هدف من ضربة رأس" },
-    { time: "67", type: "goal", player: "1", team: "1", description: "تسديدة من خارج منطقة الجزاء" },
-    { time: "78", type: "goal", player: "1", team: "1", description: "ضربة حرة مباشرة" },
-  ],
-  "match-2": [],
-  "match-3": [
-    { time: "22", type: "goal", player: "3", team: "3", description: "هدف من ضربة جزاء" },
-    { time: "55", type: "goal", player: "1", team: "1", description: "هدف من هجمة مرتدة" },
-    { time: "60", type: "yellowCard", player: "3", team: "3", description: "اعتراض على قرار الحكم" },
-  ],
-};
-
-// Mock match statistics data
-const mockStats = {
-  "match-1": { 
-    possession: { home: 60, away: 40 }, 
-    shots: { home: 12, away: 8 }, 
-    shotsOnTarget: { home: 7, away: 4 },
-    corners: { home: 8, away: 2 },
-    fouls: { home: 10, away: 14 },
-    yellowCards: { home: 1, away: 2 },
-    redCards: { home: 0, away: 0 }
-  },
-  "match-2": { 
-    possession: { home: 50, away: 50 }, 
-    shots: { home: 0, away: 0 }, 
-    shotsOnTarget: { home: 0, away: 0 },
-    corners: { home: 0, away: 0 },
-    fouls: { home: 0, away: 0 },
-    yellowCards: { home: 0, away: 0 },
-    redCards: { home: 0, away: 0 }
-  },
-  "match-3": { 
-    possession: { home: 45, away: 55 }, 
-    shots: { home: 9, away: 11 }, 
-    shotsOnTarget: { home: 4, away: 6 },
-    corners: { home: 3, away: 7 },
-    fouls: { home: 8, away: 6 },
-    yellowCards: { home: 0, away: 1 },
-    redCards: { home: 0, away: 0 }
-  },
-};
-
-// Mock lineups
-const mockLineups = {
-  "match-1": {
-    home: ["1"],
-    away: ["2"]
-  },
-  "match-2": {
-    home: ["3"],
-    away: ["4"]
-  },
-  "match-3": {
-    home: ["1"],
-    away: ["3"]
-  }
-};
 
 const MatchReport = () => {
   const { matchId } = useParams<{ matchId: string }>();
@@ -119,8 +55,8 @@ const MatchReport = () => {
   
   const homeTeam = academies.find(a => a.id === match.homeTeam);
   const awayTeam = academies.find(a => a.id === match.awayTeam);
-  const events = mockEvents[matchId as keyof typeof mockEvents] || [];
-  const stats = mockStats[matchId as keyof typeof mockStats] || {
+  const events = matchEvents[matchId as keyof typeof matchEvents] || [];
+  const stats = matchStats[matchId as keyof typeof matchStats] || {
     possession: { home: 50, away: 50 },
     shots: { home: 0, away: 0 },
     shotsOnTarget: { home: 0, away: 0 },
@@ -130,7 +66,8 @@ const MatchReport = () => {
     redCards: { home: 0, away: 0 }
   };
   
-  const lineups = mockLineups[matchId as keyof typeof mockLineups] || { home: [], away: [] };
+  const lineups = matchLineups[matchId as keyof typeof matchLineups] || { home: [], away: [] };
+  const referee = matchReferees[matchId as keyof typeof matchReferees];
   
   const formatStatus = (status: string) => {
     switch (status) {
@@ -459,16 +396,26 @@ const MatchReport = () => {
               <tbody>
                 <tr>
                   <td className="border border-gray-300 p-2 w-1/4 bg-gray-100 font-bold">الحكم</td>
-                  <td className="border border-gray-300 p-2">حسام عبدالله</td>
+                  <td className="border border-gray-300 p-2">{referee?.main || "غير محدد"}</td>
                   <td className="border border-gray-300 p-2 w-1/4 bg-gray-100 font-bold">التوقيع</td>
                   <td className="border border-gray-300 p-2"></td>
                 </tr>
                 <tr>
+                  <td className="border border-gray-300 p-2 bg-gray-100 font-bold">الحكم المساعد الأول</td>
+                  <td className="border border-gray-300 p-2">{referee?.assistant1 || "غير محدد"}</td>
+                  <td className="border border-gray-300 p-2 bg-gray-100 font-bold">الحكم المساعد الثاني</td>
+                  <td className="border border-gray-300 p-2">{referee?.assistant2 || "غير محدد"}</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-300 p-2 bg-gray-100 font-bold">الحكم الرابع</td>
+                  <td className="border border-gray-300 p-2">{referee?.fourth || "غير محدد"}</td>
+                  <td className="border border-gray-300 p-2 bg-gray-100 font-bold">حكم الفار</td>
+                  <td className="border border-gray-300 p-2">{referee?.var || "غير محدد"}</td>
+                </tr>
+                <tr>
                   <td className="border border-gray-300 p-2 w-1/4 bg-gray-100 font-bold">الملاحظات</td>
                   <td className="border border-gray-300 p-2" colSpan={3}>
-                    {match.status === "completed" ? 
-                      "أقيمت المباراة في أجواء تنافسية جيدة وبروح رياضية عالية من الفريقين" : 
-                      ""}
+                    {match.status === "completed" ? referee?.comments || "لا توجد ملاحظات" : ""}
                   </td>
                 </tr>
               </tbody>
