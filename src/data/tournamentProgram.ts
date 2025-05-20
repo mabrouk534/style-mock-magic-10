@@ -7,7 +7,7 @@ export const tournamentProgram: TournamentProgram[] = [
   {
     id: '1',
     date: '2024-07-04',
-    title: 'الوصول وبدء البطولة',
+    title: 'برنامج معسكر أكاديمية أويله لكرة القدم - مملكة البحرين',
     activities: [
       { time: '04:10', description: 'صلاة الفجر' },
       { time: '08:00', description: 'وجبة الإفطار' },
@@ -25,7 +25,7 @@ export const tournamentProgram: TournamentProgram[] = [
   {
     id: '2',
     date: '2024-07-05',
-    title: 'مباريات ودورة الألعاب الإلكترونية',
+    title: 'برنامج معسكر أكاديمية أويله لكرة القدم - مملكة البحرين',
     activities: [
       { time: '04:10', description: 'صلاة الفجر' },
       { time: '08:00', description: 'وجبة الإفطار' },
@@ -43,7 +43,7 @@ export const tournamentProgram: TournamentProgram[] = [
   {
     id: '3',
     date: '2024-07-06',
-    title: 'مباريات ودورة الألعاب الإلكترونية',
+    title: 'برنامج معسكر أكاديمية أويله لكرة القدم - مملكة البحرين',
     activities: [
       { time: '04:10', description: 'صلاة الفجر' },
       { time: '08:00', description: 'وجبة الإفطار' },
@@ -61,7 +61,7 @@ export const tournamentProgram: TournamentProgram[] = [
   {
     id: '4',
     date: '2024-07-07',
-    title: 'مباريات وتدريب بالصالة الرياضية',
+    title: 'برنامج معسكر أكاديمية أويله لكرة القدم - مملكة البحرين',
     activities: [
       { time: '04:10', description: 'صلاة الفجر' },
       { time: '08:00', description: 'وجبة الإفطار' },
@@ -79,7 +79,7 @@ export const tournamentProgram: TournamentProgram[] = [
   {
     id: '5',
     date: '2024-07-08',
-    title: 'تجمع البطولة وتبادل الدروع',
+    title: 'برنامج معسكر أكاديمية أويله لكرة القدم - مملكة البحرين',
     activities: [
       { time: '04:10', description: 'صلاة الفجر' },
       { time: '08:00', description: 'وجبة الإفطار' },
@@ -96,7 +96,7 @@ export const tournamentProgram: TournamentProgram[] = [
   {
     id: '6',
     date: '2024-07-09',
-    title: 'تدريب للمدربين',
+    title: 'برنامج معسكر أكاديمية أويله لكرة القدم - مملكة البحرين',
     activities: [
       { time: '04:10', description: 'صلاة الفجر' },
       { time: '08:00', description: 'وجبة الإفطار' },
@@ -113,7 +113,7 @@ export const tournamentProgram: TournamentProgram[] = [
   {
     id: '7',
     date: '2024-07-10',
-    title: 'ندوة للاعبين ومباريات تحديد المراكز',
+    title: 'برنامج معسكر أكاديمية أويله لكرة القدم - مملكة البحرين',
     activities: [
       { time: '04:10', description: 'صلاة الفجر' },
       { time: '08:00', description: 'وجبة الإفطار' },
@@ -130,7 +130,7 @@ export const tournamentProgram: TournamentProgram[] = [
   {
     id: '8',
     date: '2024-07-11',
-    title: 'مباريات نصف النهائي والنهائي وحفل الختام',
+    title: 'برنامج معسكر أكاديمية أويله لكرة القدم - مملكة البحرين',
     activities: [
       { time: '04:10', description: 'صلاة الفجر' },
       { time: '08:00', description: 'وجبة الإفطار' },
@@ -147,7 +147,7 @@ export const tournamentProgram: TournamentProgram[] = [
   {
     id: '9',
     date: '2024-07-12',
-    title: 'المغادرة',
+    title: 'برنامج معسكر أكاديمية أويله لكرة القدم - مملكة البحرين',
     activities: [
       { time: '04:10', description: 'صلاة الفجر' },
       { time: '08:00', description: 'وجبة الإفطار' },

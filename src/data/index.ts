@@ -6,3 +6,4 @@ export * from './players';
 export * from './standings';
 export * from './tournament';
 export * from './matchDetails';
+export * from './tournamentProgram';

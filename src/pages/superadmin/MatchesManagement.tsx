@@ -474,7 +474,7 @@ const MatchesManagement = () => {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <CalendarIcon className="ml-2" />
-                  برنامج بطولة كوانرو للأكاديميات الخليجية 2025
+                  بطولة كواترو للأكاديميات الخليجية - النسخة الثامنة 2025
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -487,7 +487,12 @@ const MatchesManagement = () => {
                     <SelectContent>
                       {programDates.map((date) => (
                         <SelectItem key={date} value={date}>
-                          {new Date(date).toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                          {new Date(date).toLocaleDateString('ar-AE', { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                          })}
                         </SelectItem>
                       ))}
                     </SelectContent>
