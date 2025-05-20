@@ -7,6 +7,7 @@ import { players } from './players';
 import { standings } from './standings';
 import { schedule, tournamentRules } from './tournament';
 import { matchEvents, matchLineups, matchReferees, matchStats } from './matchDetails';
+import { tournamentProgram } from './tournamentProgram';
 
 export {
   academies,
@@ -18,5 +19,6 @@ export {
   matchEvents,
   matchLineups,
   matchReferees,
-  matchStats
+  matchStats,
+  tournamentProgram
 };

@@ -83,3 +83,15 @@ export interface User {
   academyId: string | null;
   role: 'admin' | 'academy' | 'viewer';
 }
+
+export interface TournamentActivity {
+  time: string;
+  description: string;
+}
+
+export interface TournamentProgram {
+  id: string;
+  date: string;
+  title: string;
+  activities: TournamentActivity[];
+}
