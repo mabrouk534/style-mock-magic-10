@@ -1,9 +1,11 @@
+
 import { useEffect, useState } from "react";
-import { Building, Trophy, Users, UserCog } from "lucide-react";
+import { Building, Trophy, Users, UserCog, Calendar, List, Table } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { StatCard } from "@/components/StatCard";
 import { Academy } from "@/types/tournament";
 import { academies, matches, players } from "@/data";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const [academy, setAcademy] = useState<Academy | null>(null);
@@ -126,6 +128,33 @@ const Dashboard = () => {
             <h4 className="font-medium mb-2">منسق الأكاديمية</h4>
             <p className="text-gray-700">{academy.coordinator}</p>
             <p className="text-gray-500 text-sm">رقم التواصل: {academy.contactNumber}</p>
+          </div>
+          
+          <div className="bg-gray-50 p-4 rounded-md">
+            <h4 className="font-medium mb-2">روابط سريعة</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+              <Link 
+                to="/dashboard/tournament-program" 
+                className="flex items-center p-3 bg-white rounded-md border hover:bg-gray-50"
+              >
+                <List size={18} className="ml-2 text-quattro-red" />
+                <span className="text-sm">برنامج المعسكر</span>
+              </Link>
+              <Link 
+                to="/dashboard/match-results" 
+                className="flex items-center p-3 bg-white rounded-md border hover:bg-gray-50"
+              >
+                <Trophy size={18} className="ml-2 text-green-500" />
+                <span className="text-sm">نتائج المباريات</span>
+              </Link>
+              <Link 
+                to="/dashboard/team-rankings" 
+                className="flex items-center p-3 bg-white rounded-md border hover:bg-gray-50"
+              >
+                <Table size={18} className="ml-2 text-purple-500" />
+                <span className="text-sm">ترتيب الفرق</span>
+              </Link>
+            </div>
           </div>
           
           <div className="bg-gray-50 p-4 rounded-md">

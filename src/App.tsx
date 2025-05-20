@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -98,9 +97,9 @@ const App = () => {
             <Route path="/dashboard/players" element={<ProtectedRoute><PlayerRegistration /></ProtectedRoute>} />
             <Route path="/dashboard/staff" element={<ProtectedRoute><StaffRegistration /></ProtectedRoute>} />
             <Route path="/dashboard/matches" element={<ProtectedRoute><MatchSchedule /></ProtectedRoute>} />
-            <Route path="/dashboard/tournament-program" element={<ProtectedRoute><TournamentProgram /></ProtectedRoute>} />
-            <Route path="/dashboard/match-results" element={<ProtectedRoute><MatchResults /></ProtectedRoute>} />
-            <Route path="/dashboard/team-rankings" element={<ProtectedRoute><TeamRankings /></ProtectedRoute>} />
+            <Route path="/dashboard/tournament-program" element={<ProtectedRoute><SuperadminTournamentProgram /></ProtectedRoute>} />
+            <Route path="/dashboard/match-results" element={<ProtectedRoute><SuperadminMatchResults /></ProtectedRoute>} />
+            <Route path="/dashboard/team-rankings" element={<ProtectedRoute><SuperadminTeamRankings /></ProtectedRoute>} />
             <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             
             {/* Superadmin routes */}
