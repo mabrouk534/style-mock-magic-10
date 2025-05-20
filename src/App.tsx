@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,6 +16,9 @@ import AcademyInfo from "./pages/dashboard/AcademyInfo";
 import PlayerRegistration from "./pages/dashboard/PlayerRegistration";
 import StaffRegistration from "./pages/dashboard/StaffRegistration";
 import MatchSchedule from "./pages/dashboard/MatchSchedule";
+import TournamentProgram from "./pages/dashboard/TournamentProgram";
+import MatchResults from "./pages/dashboard/MatchResults";
+import TeamRankings from "./pages/dashboard/TeamRankings";
 import Settings from "./pages/dashboard/Settings";
 import SuperadminDashboard from "./pages/superadmin/Dashboard";
 import AcademyManager from "./pages/superadmin/AcademyManager";
@@ -24,9 +26,9 @@ import PlayerManager from "./pages/superadmin/PlayerManager";
 import MatchManager from "./pages/superadmin/MatchManager";
 import MatchesManagement from "./pages/superadmin/MatchesManagement";
 import MatchReport from "./pages/superadmin/MatchReport";
-import TournamentProgram from "./pages/superadmin/TournamentProgram";
-import MatchResults from "./pages/superadmin/MatchResults";
-import TeamRankings from "./pages/superadmin/TeamRankings";
+import TournamentProgram as SuperadminTournamentProgram from "./pages/superadmin/TournamentProgram";
+import MatchResults as SuperadminMatchResults from "./pages/superadmin/MatchResults";
+import TeamRankings as SuperadminTeamRankings from "./pages/superadmin/TeamRankings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -93,6 +95,9 @@ const App = () => {
             <Route path="/dashboard/players" element={<ProtectedRoute><PlayerRegistration /></ProtectedRoute>} />
             <Route path="/dashboard/staff" element={<ProtectedRoute><StaffRegistration /></ProtectedRoute>} />
             <Route path="/dashboard/matches" element={<ProtectedRoute><MatchSchedule /></ProtectedRoute>} />
+            <Route path="/dashboard/tournament-program" element={<ProtectedRoute><TournamentProgram /></ProtectedRoute>} />
+            <Route path="/dashboard/match-results" element={<ProtectedRoute><MatchResults /></ProtectedRoute>} />
+            <Route path="/dashboard/team-rankings" element={<ProtectedRoute><TeamRankings /></ProtectedRoute>} />
             <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             
             {/* Superadmin routes */}
@@ -102,9 +107,9 @@ const App = () => {
             <Route path="/superadmin/matches" element={<ProtectedRoute requiredRole="admin"><MatchManager /></ProtectedRoute>} />
             <Route path="/superadmin/matches-management" element={<ProtectedRoute requiredRole="admin"><MatchesManagement /></ProtectedRoute>} />
             <Route path="/superadmin/match-report/:matchId" element={<ProtectedRoute requiredRole="admin"><MatchReport /></ProtectedRoute>} />
-            <Route path="/superadmin/tournament-program" element={<ProtectedRoute requiredRole="admin"><TournamentProgram /></ProtectedRoute>} />
-            <Route path="/superadmin/match-results" element={<ProtectedRoute requiredRole="admin"><MatchResults /></ProtectedRoute>} />
-            <Route path="/superadmin/team-rankings" element={<ProtectedRoute requiredRole="admin"><TeamRankings /></ProtectedRoute>} />
+            <Route path="/superadmin/tournament-program" element={<ProtectedRoute requiredRole="admin"><SuperadminTournamentProgram /></ProtectedRoute>} />
+            <Route path="/superadmin/match-results" element={<ProtectedRoute requiredRole="admin"><SuperadminMatchResults /></ProtectedRoute>} />
+            <Route path="/superadmin/team-rankings" element={<ProtectedRoute requiredRole="admin"><SuperadminTeamRankings /></ProtectedRoute>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
