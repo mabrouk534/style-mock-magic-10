@@ -1,10 +1,9 @@
-
 import { useEffect, useState } from "react";
 import { Building, Trophy, Users, UserCog } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { StatCard } from "@/components/StatCard";
 import { Academy } from "@/types/tournament";
-import { academies } from "@/data/mockData";
+import { academies, matches, players } from "@/data";
 
 const Dashboard = () => {
   const [academy, setAcademy] = useState<Academy | null>(null);

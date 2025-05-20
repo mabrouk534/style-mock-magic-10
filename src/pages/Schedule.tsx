@@ -1,6 +1,6 @@
 
 import Navbar from '@/components/Navbar';
-import { schedule } from '@/data/mockData';
+import { schedule } from '@/data';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Calendar, Clock } from 'lucide-react';
 

@@ -23,7 +23,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Player } from "@/types/tournament";
 import { Plus, Pencil, Trash2, Users } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { academies } from "@/data/mockData";
+import { players, academies } from "@/data";
 
 // Mock initial data for players
 const initialPlayers: Player[] = [

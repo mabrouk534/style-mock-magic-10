@@ -1,6 +1,6 @@
 
 import { Team } from '@/types/tournament';
-import { academies } from '@/data/mockData';
+import { academies } from '@/data';
 
 interface StandingsTableProps {
   standings: Team[];

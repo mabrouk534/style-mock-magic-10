@@ -1,6 +1,6 @@
 
 import Navbar from '@/components/Navbar';
-import { tournamentRules } from '@/data/mockData';
+import { tournamentRules } from '@/data';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { FileText } from 'lucide-react';

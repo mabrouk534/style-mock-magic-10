@@ -1,6 +1,6 @@
 
 import { Match } from '@/types/tournament';
-import { academies } from '@/data/mockData';
+import { academies } from '@/data';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 interface MatchCardProps {

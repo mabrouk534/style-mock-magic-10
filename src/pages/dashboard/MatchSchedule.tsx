@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Calendar } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { MatchCard } from "@/components/MatchCard";
-import { matches } from "@/data/mockData";
+import { matches } from "@/data";
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const MatchSchedule = () => {
@@ -64,14 +64,14 @@ const MatchSchedule = () => {
           >
             جميع الفئات
           </TabsTrigger>
-          {categories.map(category => (
+          {categories.map((category, index) => (
             <TabsTrigger 
-              key={category} 
-              value={category}
-              onClick={() => setSelectedCategory(category)}
+              key={`category-${index}`} 
+              value={String(category)}
+              onClick={() => setSelectedCategory(String(category))}
               className="data-[state=active]:bg-quattro-red data-[state=active]:text-white"
             >
-              {category}
+              {String(category)}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -79,8 +79,8 @@ const MatchSchedule = () => {
       
       {/* Matches by Date */}
       {sortedDates.length > 0 ? (
-        sortedDates.map(date => (
-          <div key={date} className="mb-8">
+        sortedDates.map((date, dateIndex) => (
+          <div key={`date-${dateIndex}`} className="mb-8">
             <h2 className="text-xl font-bold mb-4 bg-quattro-gray p-2 rounded-md">
               {formatDate(date)}
             </h2>

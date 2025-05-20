@@ -14,8 +14,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Academy } from "@/types/tournament";
-import { academies } from "@/data/mockData";
-import { Plus, Pencil, Trash2, Building } from "lucide-react";
+import { academies } from "@/data";
 
 const AcademyManager = () => {
   const [academiesList, setAcademiesList] = useState<Academy[]>([]);

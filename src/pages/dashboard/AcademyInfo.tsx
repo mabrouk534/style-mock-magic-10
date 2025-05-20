@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -17,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Academy } from "@/types/tournament";
-import { academies } from "@/data/mockData";
+import { academies } from "@/data";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "يجب أن يكون الاسم على الأقل حرفين" }),

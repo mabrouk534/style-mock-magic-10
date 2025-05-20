@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import SuperadminLayout from "@/components/SuperadminLayout";
 import { Button } from "@/components/ui/button";
@@ -24,7 +23,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Match } from "@/types/tournament";
 import { Plus, Pencil, Trash2, Trophy, FileText } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { academies } from "@/data/mockData";
+import { academies, matches, players } from "@/data";
 import { useNavigate } from "react-router-dom";
 
 // Mock initial data for matches

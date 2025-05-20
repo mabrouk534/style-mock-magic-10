@@ -1,10 +1,9 @@
-
 import { useEffect, useState } from "react";
 import { Building, Trophy, Users, UserCog } from "lucide-react";
 import SuperadminLayout from "@/components/SuperadminLayout";
 import { StatCard } from "@/components/StatCard";
 import { Academy } from "@/types/tournament";
-import { academies } from "@/data/mockData";
+import { academies, matches, players } from "@/data";
 
 const SuperadminDashboard = () => {
   const [totalAcademies, setTotalAcademies] = useState<number>(0);

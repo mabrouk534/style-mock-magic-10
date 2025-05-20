@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { TeamCard } from '@/components/TeamCard';
-import { academies } from '@/data/mockData';
+import { academies } from '@/data';
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
@@ -45,9 +45,9 @@ const Teams = () => {
             onChange={e => setSelectedCountry(e.target.value)}
           >
             <option value="">جميع الدول</option>
-            {countries.map(country => (
-              <option key={country} value={country}>
-                {country}
+            {countries.map((country, index) => (
+              <option key={`country-${index}`} value={String(country)}>
+                {String(country)}
               </option>
             ))}
           </select>

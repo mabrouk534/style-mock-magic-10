@@ -1,181 +1,176 @@
-
-import { useState } from "react";
-import { Calendar, Plus, Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import SuperadminLayout from "@/components/SuperadminLayout";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { matches, academies } from "@/data/mockData";
+import { Search, PlusCircle, FileEdit, Eye } from "lucide-react";
+import { matches, academies } from "@/data";
 
 const MatchesManagement = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [filteredMatches, setFilteredMatches] = useState(matches);
+
   // Get unique categories
-  const categories = [...new Set(matches.map(match => match.category))];
-  
-  // Filter matches based on selected category and search query
-  const filteredMatches = matches
-    .filter(match => selectedCategory === 'all' || match.category === selectedCategory)
-    .filter(match => {
-      const homeTeam = academies.find(academy => academy.id === match.homeTeam)?.name || '';
-      const awayTeam = academies.find(academy => academy.id === match.awayTeam)?.name || '';
-      const venue = match.venue;
-      
-      return homeTeam.includes(searchQuery) || 
-             awayTeam.includes(searchQuery) ||
-             venue.includes(searchQuery);
-    });
+  const categories = [...new Set(matches.map((match) => match.category))];
 
-  // Group matches by date
-  const groupedMatches: Record<string, typeof matches> = {};
-  
-  filteredMatches.forEach(match => {
-    if (!groupedMatches[match.date]) {
-      groupedMatches[match.date] = [];
+  useEffect(() => {
+    // Apply filters
+    let filtered = matches;
+
+    if (searchTerm) {
+      filtered = filtered.filter((match) => {
+        const homeTeam = academies.find((academy) => academy.id === match.homeTeam);
+        const awayTeam = academies.find((academy) => academy.id === match.awayTeam);
+        return (
+          homeTeam?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          awayTeam?.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      });
     }
-    groupedMatches[match.date].push(match);
-  });
 
-  // Sort dates
-  const sortedDates = Object.keys(groupedMatches).sort((a, b) => 
-    new Date(a).getTime() - new Date(b).getTime()
-  );
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter((match) => match.category === selectedCategory);
+    }
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ar-AE', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    if (selectedStatus !== "all") {
+      filtered = filtered.filter((match) => match.status === selectedStatus);
+    }
+
+    setFilteredMatches(filtered);
+  }, [searchTerm, selectedCategory, selectedStatus]);
+
+  const resetFilters = () => {
+    setSearchTerm("");
+    setSelectedCategory("all");
+    setSelectedStatus("all");
   };
 
   return (
-    <SuperadminLayout title="إدارة جدول المباريات">
-      <div className="mb-6">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Calendar className="text-quattro-red" size={28} />
-            <h2 className="text-2xl font-bold">إدارة جدول المباريات</h2>
+    <SuperadminLayout title="إدارة المباريات">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold">قائمة المباريات</h2>
+        <Button variant="default" className="bg-quattro-blue hover:bg-quattro-blue/90">
+          <PlusCircle className="ml-2 h-5 w-5" />
+          إضافة مباراة جديدة
+        </Button>
+      </div>
+      
+      {/* Filters */}
+      <div className="bg-white p-4 rounded-lg shadow mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="relative">
+            <Search className="absolute right-3 top-3 text-gray-400" size={20} />
+            <Input
+              className="pl-3 pr-10"
+              placeholder="بحث..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <Button className="bg-quattro-red hover:bg-red-700">
-            <Plus className="ml-2" size={18} />
-            إضافة مباراة جديدة
+          
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger>
+              <SelectValue placeholder="جميع الفئات" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع الفئات</SelectItem>
+              {categories.map((category, index) => (
+                <SelectItem key={`category-${index}`} value={String(category)}>
+                  {String(category)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+            <SelectTrigger>
+              <SelectValue placeholder="جميع الحالات" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع الحالات</SelectItem>
+              <SelectItem value="scheduled">قادمة</SelectItem>
+              <SelectItem value="inProgress">جارية</SelectItem>
+              <SelectItem value="completed">منتهية</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Button className="bg-quattro-gray hover:bg-quattro-gray/90 text-black" onClick={resetFilters}>
+            إعادة تعيين التصفية
           </Button>
         </div>
-        <p className="text-gray-600 mt-2">
-          قم بإدارة وتنظيم جدول مباريات البطولة
-        </p>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="relative">
-          <Search className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder="البحث عن مباراة..."
-            className="pl-3 pr-10"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <Select
-          value={selectedCategory}
-          onValueChange={(value) => setSelectedCategory(value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="اختر الفئة العمرية" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">جميع الفئات</SelectItem>
-            {categories.map(category => (
-              <SelectItem key={category} value={category}>
-                {category}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select defaultValue="all">
-          <SelectTrigger>
-            <SelectValue placeholder="حالة المباراة" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">جميع المباريات</SelectItem>
-            <SelectItem value="upcoming">المباريات القادمة</SelectItem>
-            <SelectItem value="completed">المباريات المنتهية</SelectItem>
-            <SelectItem value="live">المباريات الجارية</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Matches Display */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <Tabs defaultValue="list" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="list" className="data-[state=active]:bg-quattro-red data-[state=active]:text-white">عرض القائمة</TabsTrigger>
-            <TabsTrigger value="calendar" className="data-[state=active]:bg-quattro-red data-[state=active]:text-white">عرض التقويم</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="list">
-            {sortedDates.length > 0 ? (
-              sortedDates.map(date => (
-                <div key={date} className="mb-6">
-                  <h3 className="text-xl font-bold mb-4 bg-gray-50 p-2 rounded-md">
-                    {formatDate(date)}
-                  </h3>
-                  <div className="space-y-4">
-                    {groupedMatches[date].map(match => {
-                      const homeTeam = academies.find(academy => academy.id === match.homeTeam);
-                      const awayTeam = academies.find(academy => academy.id === match.awayTeam);
-                      
-                      return (
-                        <Card key={match.id} className="p-4">
-                          <div className="flex justify-between items-center">
-                            <div className="flex-1">
-                              <div className="flex justify-between items-center">
-                                <div className="text-lg font-medium">{homeTeam?.name}</div>
-                                <div className="text-center px-4">
-                                  <div className="text-xl font-bold">
-                                    {match.status !== 'scheduled' 
-                                      ? `${match.homeScore} - ${match.awayScore}` 
-                                      : "VS"}
-                                  </div>
-                                  <div className="text-sm text-gray-500">{match.time}</div>
-                                </div>
-                                <div className="text-lg font-medium">{awayTeam?.name}</div>
-                              </div>
-                            </div>
-                            <div className="flex gap-2 mr-4">
-                              <Button variant="outline" size="sm">تعديل</Button>
-                              <Button variant="outline" size="sm" className="text-red-600 hover:text-white hover:bg-red-600">حذف</Button>
-                            </div>
-                          </div>
-                          <div className="mt-2 text-sm text-gray-500">
-                            <span className="ml-3">{match.category}</span>
-                            <span>{match.venue}</span>
-                          </div>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))
+      
+      {/* Matches Table */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>التاريخ</TableHead>
+              <TableHead>الوقت</TableHead>
+              <TableHead>الفريق المستضيف</TableHead>
+              <TableHead>الفريق الضيف</TableHead>
+              <TableHead>النتيجة</TableHead>
+              <TableHead>الفئة</TableHead>
+              <TableHead>الحالة</TableHead>
+              <TableHead>الإجراءات</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredMatches.length > 0 ? (
+              filteredMatches.map(match => {
+                const homeTeam = academies.find(academy => academy.id === match.homeTeam);
+                const awayTeam = academies.find(academy => academy.id === match.awayTeam);
+                return (
+                  <TableRow key={match.id}>
+                    <TableCell>{match.date}</TableCell>
+                    <TableCell>{match.time}</TableCell>
+                    <TableCell>{homeTeam?.name}</TableCell>
+                    <TableCell>{awayTeam?.name}</TableCell>
+                    <TableCell>
+                      {match.status === "completed" ? 
+                        `${match.homeScore} - ${match.awayScore}` : 
+                        "—"
+                      }
+                    </TableCell>
+                    <TableCell>{match.category}</TableCell>
+                    <TableCell>
+                      <div className={`px-2 py-1 rounded-full text-center text-xs ${
+                        match.status === "completed" ? "bg-green-100 text-green-800" : 
+                        match.status === "inProgress" ? "bg-blue-100 text-blue-800" :
+                        "bg-yellow-100 text-yellow-800"
+                      }`}>
+                        {match.status === "completed" ? "منتهية" : 
+                         match.status === "inProgress" ? "جارية" : "قادمة"}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-s-2">
+                        <Link to={`/superadmin/match-report/${match.id}`}>
+                          <Button variant="ghost" size="icon">
+                            <Eye className="h-5 w-5" />
+                          </Button>
+                        </Link>
+                        <Button variant="ghost" size="icon">
+                          <FileEdit className="h-5 w-5" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             ) : (
-              <div className="text-center py-10">
-                <p className="text-gray-500">لا توجد مباريات متطابقة مع معايير البحث</p>
-              </div>
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-4">
+                  لا توجد مباريات مطابقة للمعايير المحددة
+                </TableCell>
+              </TableRow>
             )}
-          </TabsContent>
-          
-          <TabsContent value="calendar">
-            <div className="text-center py-20 bg-gray-50 rounded-lg">
-              <p className="text-gray-500">سيتم تطوير عرض التقويم قريباً</p>
-            </div>
-          </TabsContent>
-        </Tabs>
+          </TableBody>
+        </Table>
       </div>
     </SuperadminLayout>
   );
