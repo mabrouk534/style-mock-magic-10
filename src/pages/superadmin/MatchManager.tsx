@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import SuperadminLayout from "@/components/SuperadminLayout";
 import { Button } from "@/components/ui/button";
@@ -21,9 +22,10 @@ import {
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Match } from "@/types/tournament";
-import { Plus, Pencil, Trash2, Trophy } from "lucide-react";
+import { Plus, Pencil, Trash2, Trophy, FileText } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { academies } from "@/data/mockData";
+import { useNavigate } from "react-router-dom";
 
 // Mock initial data for matches
 const initialMatches: Match[] = [
@@ -72,6 +74,10 @@ const MatchManager = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [dateFilter, setDateFilter] = useState<string>("");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const [formData, setFormData] = useState<{
     homeTeam: string;
@@ -94,8 +100,6 @@ const MatchManager = () => {
     category: "",
     status: "scheduled"
   });
-  
-  const { toast } = useToast();
   
   useEffect(() => {
     // Load matches from mock data
@@ -151,6 +155,11 @@ const MatchManager = () => {
       category: match.category,
       status: match.status
     });
+    setDialogOpen(true);
+  };
+
+  const handleViewMatchReport = (matchId: string) => {
+    navigate(`/superadmin/match-report/${matchId}`);
   };
   
   const handleDeleteMatch = (id: string) => {
@@ -187,6 +196,7 @@ const MatchManager = () => {
       });
     }
     
+    setDialogOpen(false);
     resetForm();
   };
 
@@ -225,7 +235,7 @@ const MatchManager = () => {
           </p>
         </div>
         
-        <Dialog>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="flex items-center gap-2" onClick={resetForm}>
               <Plus size={16} />
@@ -413,7 +423,7 @@ const MatchManager = () => {
                 <SelectValue placeholder="جميع الفئات" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">جميع الفئات</SelectItem>
+                <SelectItem value="">جميع الفئات</SelectItem>
                 <SelectItem value="تحت 14 سنة">تحت 14 سنة</SelectItem>
                 <SelectItem value="تحت 16 سنة">تحت 16 سنة</SelectItem>
                 <SelectItem value="تحت 18 سنة">تحت 18 سنة</SelectItem>
@@ -430,7 +440,7 @@ const MatchManager = () => {
                 <SelectValue placeholder="جميع الحالات" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">جميع الحالات</SelectItem>
+                <SelectItem value="">جميع الحالات</SelectItem>
                 <SelectItem value="scheduled">قادمة</SelectItem>
                 <SelectItem value="inProgress">جارية</SelectItem>
                 <SelectItem value="completed">منتهية</SelectItem>
@@ -488,10 +498,28 @@ const MatchManager = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button size="icon" variant="ghost" onClick={() => handleEditMatch(match)}>
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        onClick={() => handleViewMatchReport(match.id)}
+                        title="عرض تقرير المباراة"
+                      >
+                        <FileText size={16} />
+                      </Button>
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        onClick={() => handleEditMatch(match)}
+                        title="تعديل المباراة"
+                      >
                         <Pencil size={16} />
                       </Button>
-                      <Button size="icon" variant="ghost" onClick={() => handleDeleteMatch(match.id)}>
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        onClick={() => handleDeleteMatch(match.id)}
+                        title="حذف المباراة"
+                      >
                         <Trash2 size={16} />
                       </Button>
                     </div>
