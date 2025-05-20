@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LogIn, UserRound, School } from "lucide-react";
+import { LogIn, UserRound, School, UserPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -112,6 +112,15 @@ const Login = () => {
     }, 500);
   };
 
+  const handleRegisterAcademy = () => {
+    // This is a placeholder - in a real app it would navigate to a registration page
+    navigate("/register-academy");
+    toast({
+      title: "صفحة التسجيل",
+      description: "انتقال إلى صفحة تسجيل أكاديمية جديدة",
+    });
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
@@ -173,6 +182,15 @@ const Login = () => {
             </Button>
           </form>
         </Form>
+
+        <Button 
+          onClick={handleRegisterAcademy}
+          variant="outline" 
+          className="w-full border-quattro-red text-quattro-red hover:bg-quattro-red/10 mt-4"
+        >
+          <UserPlus className="ml-2" size={18} />
+          تسجيل أكاديمية جديدة
+        </Button>
 
         <div className="pt-4">
           <Separator className="my-4" />

@@ -31,6 +31,7 @@ import SuperadminTournamentProgram from "./pages/superadmin/TournamentProgram";
 import SuperadminMatchResults from "./pages/superadmin/MatchResults";
 import SuperadminTeamRankings from "./pages/superadmin/TeamRankings";
 import NotFound from "./pages/NotFound";
+import RegisterAcademy from "./pages/RegisterAcademy";
 
 const queryClient = new QueryClient();
 
@@ -83,6 +84,7 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Login />} />
+            <Route path="/register-academy" element={<RegisterAcademy />} />
             <Route path="/home" element={<Index />} />
             <Route path="/teams" element={<Teams />} />
             <Route path="/matches" element={<Matches />} />
