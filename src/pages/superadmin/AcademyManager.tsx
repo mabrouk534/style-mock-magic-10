@@ -1,8 +1,16 @@
-import { useState, useEffect } from "react";
+
+import React, { useState, useEffect } from "react";
 import SuperadminLayout from "@/components/SuperadminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
 import { 
   Dialog, 
   DialogContent, 
@@ -14,6 +22,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Academy } from "@/types/tournament";
+import { Plus, Pencil, Trash2, Building } from "lucide-react"; // Added missing imports
 import { academies } from "@/data";
 
 const AcademyManager = () => {

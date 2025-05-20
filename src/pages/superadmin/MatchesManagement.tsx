@@ -1,25 +1,57 @@
+
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SuperadminLayout from "@/components/SuperadminLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
 import { Search, PlusCircle, FileEdit, Eye } from "lucide-react";
 import { matches, academies } from "@/data";
+import { Match } from "@/types/tournament";
 
 const MatchesManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [filteredMatches, setFilteredMatches] = useState(matches);
+  const [matchesList, setMatchesList] = useState(matches);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  // Form state for new match
+  const [formData, setFormData] = useState<{
+    homeTeam: string;
+    awayTeam: string;
+    homeScore: number | null;
+    awayScore: number | null;
+    date: string;
+    time: string;
+    venue: string;
+    category: string;
+    status: "scheduled" | "inProgress" | "completed";
+  }>({
+    homeTeam: "",
+    awayTeam: "",
+    homeScore: null,
+    awayScore: null,
+    date: "",
+    time: "",
+    venue: "",
+    category: "",
+    status: "scheduled"
+  });
 
   // Get unique categories
   const categories = [...new Set(matches.map((match) => match.category))];
 
   useEffect(() => {
     // Apply filters
-    let filtered = matches;
+    let filtered = matchesList;
 
     if (searchTerm) {
       filtered = filtered.filter((match) => {
@@ -41,22 +73,258 @@ const MatchesManagement = () => {
     }
 
     setFilteredMatches(filtered);
-  }, [searchTerm, selectedCategory, selectedStatus]);
+  }, [searchTerm, selectedCategory, selectedStatus, matchesList]);
 
   const resetFilters = () => {
     setSearchTerm("");
     setSelectedCategory("all");
     setSelectedStatus("all");
   };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
+  const handleScoreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const score = value === "" ? null : parseInt(value);
+    setFormData(prev => ({ ...prev, [name]: score }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    if (name === "status") {
+      setFormData(prev => ({ ...prev, [name]: value as "scheduled" | "inProgress" | "completed" }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+  
+  const resetForm = () => {
+    setFormData({
+      homeTeam: "",
+      awayTeam: "",
+      homeScore: null,
+      awayScore: null,
+      date: "",
+      time: "",
+      venue: "",
+      category: "",
+      status: "scheduled"
+    });
+  };
+  
+  const handleEditMatch = (match: Match) => {
+    navigate(`/superadmin/match-report/${match.id}`);
+  };
+  
+  const handleAddMatch = () => {
+    // Validate form
+    if (
+      !formData.homeTeam || 
+      !formData.awayTeam || 
+      !formData.date || 
+      !formData.time || 
+      !formData.venue || 
+      !formData.category
+    ) {
+      toast({
+        variant: "destructive",
+        title: "خطأ في الإدخال",
+        description: "يرجى ملء جميع الحقول المطلوبة"
+      });
+      return;
+    }
+    
+    // Create new match object
+    const newMatch: Match = {
+      id: `match-${Date.now()}`,
+      ...formData
+    };
+    
+    // Add to matches list
+    const updatedMatches = [...matchesList, newMatch];
+    setMatchesList(updatedMatches);
+    
+    toast({
+      title: "تمت إضافة المباراة",
+      description: "تمت إضافة المباراة بنجاح"
+    });
+    
+    // Close dialog and reset form
+    setDialogOpen(false);
+    resetForm();
+  };
+  
   return (
     <SuperadminLayout title="إدارة المباريات">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">قائمة المباريات</h2>
-        <Button variant="default" className="bg-quattro-blue hover:bg-quattro-blue/90">
-          <PlusCircle className="ml-2 h-5 w-5" />
-          إضافة مباراة جديدة
-        </Button>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger asChild>
+            <Button 
+              variant="default" 
+              className="bg-quattro-blue hover:bg-quattro-blue/90"
+              onClick={resetForm}
+            >
+              <PlusCircle className="ml-2 h-5 w-5" />
+              إضافة مباراة جديدة
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>إضافة مباراة جديدة</DialogTitle>
+            </DialogHeader>
+            
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="category" className="text-right">الفئة</Label>
+                <Select 
+                  value={formData.category} 
+                  onValueChange={(value) => handleSelectChange("category", value)}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="اختر الفئة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="تحت 14 سنة">تحت 14 سنة</SelectItem>
+                    <SelectItem value="تحت 16 سنة">تحت 16 سنة</SelectItem>
+                    <SelectItem value="تحت 18 سنة">تحت 18 سنة</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="homeTeam" className="text-right">الفريق المستضيف</Label>
+                <Select 
+                  value={formData.homeTeam} 
+                  onValueChange={(value) => handleSelectChange("homeTeam", value)}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="اختر الفريق المستضيف" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {academies.map((academy) => (
+                      <SelectItem key={academy.id} value={academy.id}>
+                        {academy.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="awayTeam" className="text-right">الفريق الضيف</Label>
+                <Select 
+                  value={formData.awayTeam} 
+                  onValueChange={(value) => handleSelectChange("awayTeam", value)}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="اختر الفريق الضيف" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {academies.map((academy) => (
+                      <SelectItem key={academy.id} value={academy.id}>
+                        {academy.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="date" className="text-right">التاريخ</Label>
+                <Input
+                  id="date"
+                  name="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={handleInputChange}
+                  className="col-span-3"
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="time" className="text-right">الوقت</Label>
+                <Input
+                  id="time"
+                  name="time"
+                  type="time"
+                  value={formData.time}
+                  onChange={handleInputChange}
+                  className="col-span-3"
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="venue" className="text-right">الملعب</Label>
+                <Input
+                  id="venue"
+                  name="venue"
+                  value={formData.venue}
+                  onChange={handleInputChange}
+                  className="col-span-3"
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="status" className="text-right">حالة المباراة</Label>
+                <Select 
+                  value={formData.status} 
+                  onValueChange={(value) => handleSelectChange("status", value)}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="اختر الحالة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="scheduled">قادمة</SelectItem>
+                    <SelectItem value="inProgress">جارية</SelectItem>
+                    <SelectItem value="completed">منتهية</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {(formData.status === "inProgress" || formData.status === "completed") && (
+                <>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="homeScore" className="text-right">نتيجة الفريق المستضيف</Label>
+                    <Input
+                      id="homeScore"
+                      name="homeScore"
+                      type="number"
+                      min="0"
+                      value={formData.homeScore === null ? "" : formData.homeScore}
+                      onChange={handleScoreChange}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="awayScore" className="text-right">نتيجة الفريق الضيف</Label>
+                    <Input
+                      id="awayScore"
+                      name="awayScore"
+                      type="number"
+                      min="0"
+                      value={formData.awayScore === null ? "" : formData.awayScore}
+                      onChange={handleScoreChange}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+            
+            <DialogFooter>
+              <Button type="button" onClick={handleAddMatch}>إضافة</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
       
       {/* Filters */}
@@ -154,7 +422,7 @@ const MatchesManagement = () => {
                             <Eye className="h-5 w-5" />
                           </Button>
                         </Link>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" onClick={() => handleEditMatch(match)}>
                           <FileEdit className="h-5 w-5" />
                         </Button>
                       </div>
