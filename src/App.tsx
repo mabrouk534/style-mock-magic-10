@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,9 +27,9 @@ import PlayerManager from "./pages/superadmin/PlayerManager";
 import MatchManager from "./pages/superadmin/MatchManager";
 import MatchesManagement from "./pages/superadmin/MatchesManagement";
 import MatchReport from "./pages/superadmin/MatchReport";
-import TournamentProgram as SuperadminTournamentProgram from "./pages/superadmin/TournamentProgram";
-import MatchResults as SuperadminMatchResults from "./pages/superadmin/MatchResults";
-import TeamRankings as SuperadminTeamRankings from "./pages/superadmin/TeamRankings";
+import SuperadminTournamentProgram from "./pages/superadmin/TournamentProgram";
+import SuperadminMatchResults from "./pages/superadmin/MatchResults";
+import SuperadminTeamRankings from "./pages/superadmin/TeamRankings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
