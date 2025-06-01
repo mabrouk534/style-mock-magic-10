@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import SuperadminLayout from "@/components/SuperadminLayout";
 import { Button } from "@/components/ui/button";
@@ -21,59 +22,22 @@ import {
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Match } from "@/types/tournament";
-import { Plus, Pencil, Trash2, Trophy, FileText } from "lucide-react";
+import { Plus, Pencil, Trash2, FileText } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { academies, matches, players } from "@/data";
+import { academies } from "@/data";
 import { useNavigate } from "react-router-dom";
-
-// Mock initial data for matches
-const initialMatches: Match[] = [
-  {
-    id: "match-1",
-    homeTeam: "academy-1",
-    awayTeam: "academy-2",
-    homeScore: 2,
-    awayScore: 1,
-    date: "2025-06-15",
-    time: "15:00",
-    venue: "ملعب الرياض",
-    category: "تحت 14 سنة",
-    status: "completed"
-  },
-  {
-    id: "match-2",
-    homeTeam: "academy-3",
-    awayTeam: "academy-4",
-    homeScore: null,
-    awayScore: null,
-    date: "2025-06-16",
-    time: "17:30",
-    venue: "ملعب الدمام",
-    category: "تحت 16 سنة",
-    status: "scheduled"
-  },
-  {
-    id: "match-3",
-    homeTeam: "academy-1",
-    awayTeam: "academy-3",
-    homeScore: 1,
-    awayScore: 1,
-    date: "2025-06-15",
-    time: "19:00",
-    venue: "ملعب جدة",
-    category: "تحت 18 سنة",
-    status: "inProgress"
-  }
-];
+import { matchService } from "@/services/matchService";
 
 const MatchManager = () => {
   const [matches, setMatches] = useState<Match[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentMatch, setCurrentMatch] = useState<Match | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -101,9 +65,25 @@ const MatchManager = () => {
   });
   
   useEffect(() => {
-    // Load matches from mock data
-    setMatches([...initialMatches]);
+    loadMatches();
   }, []);
+  
+  const loadMatches = async () => {
+    try {
+      setLoading(true);
+      const matchesData = await matchService.getAllMatches();
+      setMatches(matchesData);
+    } catch (error) {
+      console.error('Error loading matches:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل في تحميل المباريات",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -161,47 +141,80 @@ const MatchManager = () => {
     navigate(`/superadmin/match-report/${matchId}`);
   };
   
-  const handleDeleteMatch = (id: string) => {
-    setMatches(prev => prev.filter(match => match.id !== id));
-    toast({
-      title: "تم حذف المباراة",
-      description: "تم حذف المباراة بنجاح"
-    });
-  };
-  
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (isEditMode && currentMatch) {
-      // Update existing match
-      const updatedMatches = matches.map(match => 
-        match.id === currentMatch.id ? { ...match, ...formData } : match
-      );
-      setMatches(updatedMatches);
+  const handleDeleteMatch = async (id: string) => {
+    try {
+      await matchService.deleteMatch(id);
+      setMatches(prev => prev.filter(match => match.id !== id));
       toast({
-        title: "تم تحديث المباراة",
-        description: "تم تحديث معلومات المباراة بنجاح"
+        title: "تم حذف المباراة",
+        description: "تم حذف المباراة بنجاح"
       });
-    } else {
-      // Create new match
-      const newMatch: Match = {
-        id: `match-${Date.now()}`,
-        ...formData
-      };
-      setMatches(prev => [...prev, newMatch]);
+    } catch (error) {
+      console.error('Error deleting match:', error);
       toast({
-        title: "تمت إضافة المباراة",
-        description: "تمت إضافة المباراة بنجاح"
+        title: "خطأ",
+        description: "فشل في حذف المباراة",
+        variant: "destructive"
       });
     }
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-    setDialogOpen(false);
-    resetForm();
+    if (formData.homeTeam === formData.awayTeam) {
+      toast({
+        title: "خطأ",
+        description: "لا يمكن أن يكون الفريق المستضيف والفريق الضيف نفس الفريق",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      setSubmitting(true);
+      
+      if (isEditMode && currentMatch) {
+        // Update existing match
+        await matchService.updateMatch(currentMatch.id, formData);
+        setMatches(prev => prev.map(match => 
+          match.id === currentMatch.id ? { ...match, ...formData } : match
+        ));
+        toast({
+          title: "تم تحديث المباراة",
+          description: "تم تحديث معلومات المباراة بنجاح"
+        });
+      } else {
+        // Create new match
+        const newMatchId = await matchService.addMatch(formData);
+        const newMatch: Match = {
+          id: newMatchId,
+          ...formData
+        };
+        setMatches(prev => [...prev, newMatch]);
+        toast({
+          title: "تمت إضافة المباراة",
+          description: "تمت إضافة المباراة بنجاح"
+        });
+      }
+      
+      setDialogOpen(false);
+      resetForm();
+    } catch (error) {
+      console.error('Error saving match:', error);
+      toast({
+        title: "خطأ",
+        description: isEditMode ? "فشل في تحديث المباراة" : "فشل في إضافة المباراة",
+        variant: "destructive"
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const filteredMatches = matches.filter(match => {
-    const matchesCategory = categoryFilter ? match.category === categoryFilter : true;
-    const matchesStatus = statusFilter ? match.status === statusFilter : true;
+    const matchesCategory = categoryFilter === "all" || match.category === categoryFilter;
+    const matchesStatus = statusFilter === "all" || match.status === statusFilter;
     const matchesDate = dateFilter ? match.date === dateFilter : true;
     return matchesCategory && matchesStatus && matchesDate;
   });
@@ -223,6 +236,16 @@ const MatchManager = () => {
         return status;
     }
   };
+
+  if (loading) {
+    return (
+      <SuperadminLayout title="إدارة المباريات">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg">جاري تحميل المباريات...</div>
+        </div>
+      </SuperadminLayout>
+    );
+  }
 
   return (
     <SuperadminLayout title="إدارة المباريات">
@@ -261,6 +284,7 @@ const MatchManager = () => {
                       <SelectItem value="تحت 14 سنة">تحت 14 سنة</SelectItem>
                       <SelectItem value="تحت 16 سنة">تحت 16 سنة</SelectItem>
                       <SelectItem value="تحت 18 سنة">تحت 18 سنة</SelectItem>
+                      <SelectItem value="تحت 12 سنة">تحت 12 سنة</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -392,7 +416,9 @@ const MatchManager = () => {
               </div>
               
               <DialogFooter>
-                <Button type="submit">{isEditMode ? "تحديث" : "إضافة"}</Button>
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? "جاري الحفظ..." : (isEditMode ? "تحديث" : "إضافة")}
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -401,7 +427,7 @@ const MatchManager = () => {
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <Label htmlFor="dateFilter">تصفية حسب التاريخ</Label>
             <Input
@@ -426,6 +452,7 @@ const MatchManager = () => {
                 <SelectItem value="تحت 14 سنة">تحت 14 سنة</SelectItem>
                 <SelectItem value="تحت 16 سنة">تحت 16 سنة</SelectItem>
                 <SelectItem value="تحت 18 سنة">تحت 18 سنة</SelectItem>
+                <SelectItem value="تحت 12 سنة">تحت 12 سنة</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -445,6 +472,19 @@ const MatchManager = () => {
                 <SelectItem value="completed">منتهية</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="flex items-end">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setCategoryFilter("all");
+                setStatusFilter("all");
+                setDateFilter("");
+              }}
+              className="w-full"
+            >
+              إعادة تعيين الفلاتر
+            </Button>
           </div>
         </div>
       </div>
