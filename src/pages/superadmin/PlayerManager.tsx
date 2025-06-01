@@ -51,8 +51,8 @@ const PlayerManager = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState<string>("");
-  const [academyFilter, setAcademyFilter] = useState<string>("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [academyFilter, setAcademyFilter] = useState<string>("all");
   const [isCardDialogOpen, setIsCardDialogOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -280,8 +280,8 @@ const PlayerManager = () => {
 
   const filteredPlayers = players.filter(player => {
     const matchesSearch = player.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter ? player.category === categoryFilter : true;
-    const matchesAcademy = academyFilter ? player.academy === academyFilter : true;
+    const matchesCategory = categoryFilter === "all" ? true : player.category === categoryFilter;
+    const matchesAcademy = academyFilter === "all" ? true : player.academy === academyFilter;
     return matchesSearch && matchesCategory && matchesAcademy;
   });
 
@@ -477,7 +477,7 @@ const PlayerManager = () => {
                 <SelectValue placeholder="جميع الفئات" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">جميع الفئات</SelectItem>
+                <SelectItem value="all">جميع الفئات</SelectItem>
                 <SelectItem value="تحت 14 سنة">تحت 14 سنة</SelectItem>
                 <SelectItem value="تحت 16 سنة">تحت 16 سنة</SelectItem>
                 <SelectItem value="تحت 18 سنة">تحت 18 سنة</SelectItem>
@@ -494,7 +494,7 @@ const PlayerManager = () => {
                 <SelectValue placeholder="جميع الأكاديميات" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">جميع الأكاديميات</SelectItem>
+                <SelectItem value="all">جميع الأكاديميات</SelectItem>
                 {academies.map((academy) => (
                   <SelectItem key={academy.id} value={academy.id}>
                     {academy.name}
