@@ -34,10 +34,9 @@ import RegisterAcademy from "./pages/RegisterAcademy";
 
 const queryClient = new QueryClient();
 
-// Auth protected route component
-const ProtectedRoute = ({ children, requiredRole = null }: { children: React.ReactNode, requiredRole?: string | null }) => {
+// Updated ProtectedRoute component that allows all authenticated users
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [hasRequiredRole, setHasRequiredRole] = useState<boolean>(true);
   
   useEffect(() => {
     const userStr = localStorage.getItem("currentUser");
@@ -49,15 +48,10 @@ const ProtectedRoute = ({ children, requiredRole = null }: { children: React.Rea
     try {
       const user = JSON.parse(userStr);
       setIsAuthenticated(true);
-      
-      // Check for role requirement if specified
-      if (requiredRole && user.role !== requiredRole) {
-        setHasRequiredRole(false);
-      }
     } catch (e) {
       setIsAuthenticated(false);
     }
-  }, [requiredRole]);
+  }, []);
   
   if (isAuthenticated === null) {
     return <div>جاري التحميل...</div>;
@@ -65,10 +59,6 @@ const ProtectedRoute = ({ children, requiredRole = null }: { children: React.Rea
   
   if (!isAuthenticated) {
     return <Navigate to="/" />;
-  }
-  
-  if (!hasRequiredRole) {
-    return <Navigate to="/dashboard" />;
   }
   
   return <>{children}</>;
@@ -91,7 +81,7 @@ const App = () => {
             <Route path="/rules" element={<Rules />} />
             <Route path="/schedule" element={<Schedule />} />
             
-            {/* Academy Dashboard routes */}
+            {/* Academy Dashboard routes - now accessible to all authenticated users */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/dashboard/academy" element={<ProtectedRoute><AcademyInfo /></ProtectedRoute>} />
             <Route path="/dashboard/players" element={<ProtectedRoute><PlayerRegistration /></ProtectedRoute>} />
@@ -102,16 +92,16 @@ const App = () => {
             <Route path="/dashboard/team-rankings" element={<ProtectedRoute><SuperadminTeamRankings /></ProtectedRoute>} />
             <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             
-            {/* Superadmin routes */}
-            <Route path="/superadmin" element={<ProtectedRoute requiredRole="admin"><SuperadminDashboard /></ProtectedRoute>} />
-            <Route path="/superadmin/academies" element={<ProtectedRoute requiredRole="admin"><AcademyManager /></ProtectedRoute>} />
-            <Route path="/superadmin/players" element={<ProtectedRoute requiredRole="admin"><PlayerManager /></ProtectedRoute>} />
-            <Route path="/superadmin/matches" element={<ProtectedRoute requiredRole="admin"><MatchManager /></ProtectedRoute>} />
-            <Route path="/superadmin/matches-management" element={<ProtectedRoute requiredRole="admin"><MatchesManagement /></ProtectedRoute>} />
-            <Route path="/superadmin/match-report/:matchId" element={<ProtectedRoute requiredRole="admin"><MatchReport /></ProtectedRoute>} />
-            <Route path="/superadmin/tournament-program" element={<ProtectedRoute requiredRole="admin"><SuperadminTournamentProgram /></ProtectedRoute>} />
-            <Route path="/superadmin/match-results" element={<ProtectedRoute requiredRole="admin"><SuperadminMatchResults /></ProtectedRoute>} />
-            <Route path="/superadmin/team-rankings" element={<ProtectedRoute requiredRole="admin"><SuperadminTeamRankings /></ProtectedRoute>} />
+            {/* Superadmin routes - now accessible to all authenticated users */}
+            <Route path="/superadmin" element={<ProtectedRoute><SuperadminDashboard /></ProtectedRoute>} />
+            <Route path="/superadmin/academies" element={<ProtectedRoute><AcademyManager /></ProtectedRoute>} />
+            <Route path="/superadmin/players" element={<ProtectedRoute><PlayerManager /></ProtectedRoute>} />
+            <Route path="/superadmin/matches" element={<ProtectedRoute><MatchManager /></ProtectedRoute>} />
+            <Route path="/superadmin/matches-management" element={<ProtectedRoute><MatchesManagement /></ProtectedRoute>} />
+            <Route path="/superadmin/match-report/:matchId" element={<ProtectedRoute><MatchReport /></ProtectedRoute>} />
+            <Route path="/superadmin/tournament-program" element={<ProtectedRoute><SuperadminTournamentProgram /></ProtectedRoute>} />
+            <Route path="/superadmin/match-results" element={<ProtectedRoute><SuperadminMatchResults /></ProtectedRoute>} />
+            <Route path="/superadmin/team-rankings" element={<ProtectedRoute><SuperadminTeamRankings /></ProtectedRoute>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

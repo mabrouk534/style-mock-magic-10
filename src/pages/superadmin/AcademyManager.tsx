@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import SuperadminLayout from "@/components/SuperadminLayout";
 import { Button } from "@/components/ui/button";
@@ -23,31 +22,59 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Academy } from "@/types/tournament";
-import { Plus, Pencil, Trash2, Building, Upload } from "lucide-react"; 
-import { academies } from "@/data";
+import { Plus, Pencil, Trash2, Building, Upload, Check, X } from "lucide-react"; 
+import { 
+  getAcademies, 
+  createAcademy, 
+  updateAcademy, 
+  deleteAcademy, 
+  approveAcademy 
+} from "@/services/academyService";
+import { registerUser } from "@/services/authService";
+
+interface ExtendedAcademy extends Academy {
+  isApproved?: boolean;
+  email?: string;
+}
 
 const AcademyManager = () => {
-  const [academiesList, setAcademiesList] = useState<Academy[]>([]);
+  const [academiesList, setAcademiesList] = useState<ExtendedAcademy[]>([]);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [currentAcademy, setCurrentAcademy] = useState<Academy | null>(null);
+  const [currentAcademy, setCurrentAcademy] = useState<ExtendedAcademy | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     country: "",
     coordinator: "",
     contactNumber: "",
     logo: "",
+    email: "",
+    password: "",
     participatingCategories: [] as string[]
   });
   const [previewLogo, setPreviewLogo] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   
   const { toast } = useToast();
   
   useEffect(() => {
-    // Load academies from mock data
-    setAcademiesList([...academies]);
+    loadAcademies();
   }, []);
+
+  const loadAcademies = async () => {
+    try {
+      const academies = await getAcademies();
+      setAcademiesList(academies);
+    } catch (error) {
+      console.error("Error loading academies:", error);
+      toast({
+        variant: "destructive",
+        title: "خطأ",
+        description: "فشل في تحميل الأكاديميات"
+      });
+    }
+  };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -92,6 +119,8 @@ const AcademyManager = () => {
       coordinator: "",
       contactNumber: "",
       logo: "",
+      email: "",
+      password: "",
       participatingCategories: []
     });
     setPreviewLogo(null);
@@ -99,7 +128,7 @@ const AcademyManager = () => {
     setCurrentAcademy(null);
   };
   
-  const handleEditAcademy = (academy: Academy) => {
+  const handleEditAcademy = (academy: ExtendedAcademy) => {
     setIsEditMode(true);
     setCurrentAcademy(academy);
     setFormData({
@@ -108,48 +137,114 @@ const AcademyManager = () => {
       coordinator: academy.coordinator,
       contactNumber: academy.contactNumber,
       logo: academy.logo,
+      email: academy.email || "",
+      password: "",
       participatingCategories: [...academy.participatingCategories]
     });
     setPreviewLogo(academy.logo);
     setDialogOpen(true);
   };
   
-  const handleDeleteAcademy = (id: string) => {
-    setAcademiesList(prev => prev.filter(academy => academy.id !== id));
-    toast({
-      title: "تم حذف الأكاديمية",
-      description: "تم حذف الأكاديمية بنجاح"
-    });
-  };
-  
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (isEditMode && currentAcademy) {
-      // Update existing academy
-      const updatedAcademies = academiesList.map(academy => 
-        academy.id === currentAcademy.id ? { ...academy, ...formData } : academy
-      );
-      setAcademiesList(updatedAcademies);
+  const handleDeleteAcademy = async (id: string) => {
+    try {
+      await deleteAcademy(id);
+      await loadAcademies();
       toast({
-        title: "تم تحديث الأكاديمية",
-        description: "تم تحديث معلومات الأكاديمية بنجاح"
+        title: "تم حذف الأكاديمية",
+        description: "تم حذف الأكاديمية بنجاح"
       });
-    } else {
-      // Create new academy
-      const newAcademy: Academy = {
-        id: `academy-${Date.now()}`,
-        ...formData
-      };
-      setAcademiesList(prev => [...prev, newAcademy]);
+    } catch (error) {
+      console.error("Error deleting academy:", error);
       toast({
-        title: "تمت إضافة الأكاديمية",
-        description: "تمت إضافة الأكاديمية بنجاح"
+        variant: "destructive",
+        title: "خطأ",
+        description: "فشل في حذف الأكاديمية"
       });
     }
+  };
+
+  const handleApproveAcademy = async (academy: ExtendedAcademy) => {
+    try {
+      setLoading(true);
+      // Here you would need the user ID associated with this academy
+      // For now, we'll just update the academy status
+      await updateAcademy(academy.id, { isApproved: true });
+      await loadAcademies();
+      toast({
+        title: "تم قبول الأكاديمية",
+        description: "تم قبول الأكاديمية بنجاح"
+      });
+    } catch (error) {
+      console.error("Error approving academy:", error);
+      toast({
+        variant: "destructive",
+        title: "خطأ",
+        description: "فشل في قبول الأكاديمية"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
     
-    resetForm();
-    setDialogOpen(false);
+    try {
+      if (isEditMode && currentAcademy) {
+        // Update existing academy
+        await updateAcademy(currentAcademy.id, {
+          name: formData.name,
+          country: formData.country,
+          coordinator: formData.coordinator,
+          contactNumber: formData.contactNumber,
+          logo: formData.logo,
+          participatingCategories: formData.participatingCategories
+        });
+        toast({
+          title: "تم تحديث الأكاديمية",
+          description: "تم تحديث معلومات الأكاديمية بنجاح"
+        });
+      } else {
+        // Create new academy and user
+        const academyId = await createAcademy({
+          name: formData.name,
+          country: formData.country,
+          coordinator: formData.coordinator,
+          contactNumber: formData.contactNumber,
+          logo: formData.logo,
+          participatingCategories: formData.participatingCategories,
+          isApproved: true // Manually created academies are auto-approved
+        });
+
+        if (formData.email && formData.password) {
+          await registerUser(formData.email, formData.password, {
+            role: 'academy',
+            academyId: academyId,
+            academyName: formData.name,
+            isApproved: true
+          });
+        }
+
+        toast({
+          title: "تمت إضافة الأكاديمية",
+          description: "تمت إضافة الأكاديمية بنجاح"
+        });
+      }
+      
+      await loadAcademies();
+      resetForm();
+      setDialogOpen(false);
+    } catch (error: any) {
+      console.error("Error saving academy:", error);
+      toast({
+        variant: "destructive",
+        title: "خطأ",
+        description: error.message || "فشل في حفظ الأكاديمية"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleTriggerFileInput = () => {
@@ -279,6 +374,36 @@ const AcademyManager = () => {
                 </div>
               </div>
               
+              {!isEditMode && (
+                <>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="email" className="text-right">البريد الإلكتروني</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="password" className="text-right">كلمة المرور</Label>
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
+                </>
+              )}
+              
               <div className="grid grid-cols-4 items-start gap-4">
                 <Label className="text-right mt-2">الفئات المشاركة</Label>
                 <div className="col-span-3 flex flex-wrap gap-2">
@@ -298,7 +423,9 @@ const AcademyManager = () => {
             </div>
             
             <DialogFooter>
-              <Button type="submit">{isEditMode ? "تحديث" : "إضافة"}</Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? "جاري الحفظ..." : isEditMode ? "تحديث" : "إضافة"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -311,6 +438,17 @@ const AcademyManager = () => {
               <CardTitle className="flex justify-between items-center">
                 <span>{academy.name}</span>
                 <div className="flex gap-2">
+                  {!academy.isApproved && (
+                    <Button 
+                      size="icon" 
+                      variant="ghost"
+                      className="text-green-600"
+                      onClick={() => handleApproveAcademy(academy)}
+                      disabled={loading}
+                    >
+                      <Check size={16} />
+                    </Button>
+                  )}
                   <Button size="icon" variant="ghost" onClick={() => handleEditAcademy(academy)}>
                     <Pencil size={16} />
                   </Button>
@@ -319,6 +457,11 @@ const AcademyManager = () => {
                   </Button>
                 </div>
               </CardTitle>
+              {!academy.isApproved && (
+                <div className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
+                  في انتظار الموافقة
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-3">

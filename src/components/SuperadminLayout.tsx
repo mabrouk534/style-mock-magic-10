@@ -1,4 +1,3 @@
-
 import { ReactNode, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { LogOut, Menu, Users, Building, LayoutDashboard, Trophy, Calendar, List, Table } from "lucide-react";
@@ -26,16 +25,6 @@ const SuperadminLayout = ({ children, title }: SuperadminLayoutProps) => {
     
     try {
       const user = JSON.parse(userStr);
-      // Check if user is a superadmin
-      if (user.role !== 'admin') {
-        toast({
-          variant: "destructive",
-          title: "غير مصرح",
-          description: "لا يمكنك الوصول إلى لوحة التحكم"
-        });
-        navigate("/");
-        return;
-      }
       setCurrentUser(user);
     } catch (e) {
       localStorage.removeItem("currentUser");
@@ -133,7 +122,7 @@ const SuperadminLayout = ({ children, title }: SuperadminLayoutProps) => {
               {title || "لوحة تحكم المشرف الرئيسي"}
             </h2>
             <div className="text-sm text-gray-500">
-              {currentUser.email} (المشرف الرئيسي)
+              {currentUser.email}
             </div>
           </div>
         </header>

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -19,6 +18,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { registerUser } from "@/services/authService";
+import { createAcademy } from "@/services/academyService";
 
 const formSchema = z.object({
   academyName: z.string().min(3, { message: "اسم الأكاديمية يجب أن يكون 3 أحرف على الأقل" }),
@@ -53,25 +54,48 @@ const RegisterAcademy = () => {
     },
   });
 
-  const onSubmit = (values: FormValues) => {
+  const onSubmit = async (values: FormValues) => {
     setLoading(true);
 
-    // Simulate API call with timeout
-    setTimeout(() => {
-      console.log("Form values:", values);
-      
+    try {
+      // Create academy in Firestore
+      const academyId = await createAcademy({
+        name: values.academyName,
+        country: values.country,
+        coordinator: values.academyName, // Using academy name as coordinator for now
+        contactNumber: values.phoneNumber,
+        logo: "",
+        participatingCategories: [],
+        isApproved: false
+      });
+
+      // Register user with Firebase Auth
+      await registerUser(values.email, values.password, {
+        role: 'academy',
+        academyId: academyId,
+        academyName: values.academyName,
+        isApproved: false
+      });
+
       toast({
         title: "تم تسجيل الأكاديمية بنجاح",
         description: "سيتم مراجعة بياناتك والتواصل معك قريباً",
       });
       
-      // Navigate back to login page after successful registration
       setTimeout(() => {
         navigate("/");
       }, 2000);
       
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      toast({
+        variant: "destructive",
+        title: "فشل في التسجيل",
+        description: error.message || "حدث خطأ أثناء التسجيل",
+      });
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
