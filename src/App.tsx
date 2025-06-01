@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -29,6 +30,7 @@ import MatchReport from "./pages/superadmin/MatchReport";
 import SuperadminTournamentProgram from "./pages/superadmin/TournamentProgram";
 import SuperadminMatchResults from "./pages/superadmin/MatchResults";
 import SuperadminTeamRankings from "./pages/superadmin/TeamRankings";
+import Regulations from "./pages/superadmin/Regulations";
 import NotFound from "./pages/NotFound";
 import RegisterAcademy from "./pages/RegisterAcademy";
 
@@ -102,6 +104,7 @@ const App = () => {
             <Route path="/superadmin/tournament-program" element={<ProtectedRoute><SuperadminTournamentProgram /></ProtectedRoute>} />
             <Route path="/superadmin/match-results" element={<ProtectedRoute><SuperadminMatchResults /></ProtectedRoute>} />
             <Route path="/superadmin/team-rankings" element={<ProtectedRoute><SuperadminTeamRankings /></ProtectedRoute>} />
+            <Route path="/superadmin/regulations" element={<ProtectedRoute><Regulations /></ProtectedRoute>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

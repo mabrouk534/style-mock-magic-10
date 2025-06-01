@@ -1,6 +1,7 @@
+
 import { ReactNode, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { LogOut, Menu, Users, Building, LayoutDashboard, Trophy, Calendar, List, Table } from "lucide-react";
+import { LogOut, Menu, Users, Building, LayoutDashboard, Trophy, Calendar, List, Table, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -98,6 +99,11 @@ const SuperadminLayout = ({ children, title }: SuperadminLayoutProps) => {
             <Link to="/superadmin/team-rankings" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-gray-100">
               <Table className="ml-3" />
               {sidebarOpen && <span>ترتيب الفرق</span>}
+            </Link>
+
+            <Link to="/superadmin/regulations" className="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-gray-100">
+              <FileText className="ml-3" />
+              {sidebarOpen && <span>اللوائح التنظيمية</span>}
             </Link>
           </nav>
         </div>

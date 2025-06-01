@@ -58,8 +58,7 @@ const PlayerManager = () => {
     goals: 0,
     yellowCards: 0,
     redCards: 0,
-    nationality: "",
-    photo: ""
+    nationality: ""
   });
   
   const { toast } = useToast();
@@ -114,8 +113,7 @@ const PlayerManager = () => {
       goals: 0,
       yellowCards: 0,
       redCards: 0,
-      nationality: "",
-      photo: ""
+      nationality: ""
     });
     setIsEditMode(false);
     setCurrentPlayer(null);
@@ -135,8 +133,7 @@ const PlayerManager = () => {
       goals: player.goals,
       yellowCards: player.yellowCards,
       redCards: player.redCards,
-      nationality: player.nationality || "",
-      photo: player.photo || ""
+      nationality: player.nationality || ""
     });
     setIsDialogOpen(true);
   };
@@ -385,18 +382,6 @@ const PlayerManager = () => {
                     id="nationality"
                     name="nationality"
                     value={formData.nationality}
-                    onChange={handleInputChange}
-                    className="col-span-3"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="photo" className="text-right">صورة اللاعب (URL)</Label>
-                  <Input
-                    id="photo"
-                    name="photo"
-                    type="url"
-                    value={formData.photo}
                     onChange={handleInputChange}
                     className="col-span-3"
                   />
