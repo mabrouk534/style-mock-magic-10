@@ -39,6 +39,7 @@ interface ExtendedAcademy extends Academy {
 
 const AcademyManager = () => {
   const [academiesList, setAcademiesList] = useState<ExtendedAcademy[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentAcademy, setCurrentAcademy] = useState<ExtendedAcademy | null>(null);
   const [formData, setFormData] = useState({
@@ -64,15 +65,20 @@ const AcademyManager = () => {
 
   const loadAcademies = async () => {
     try {
+      setIsLoading(true);
       const academies = await getAcademies();
-      setAcademiesList(academies);
+      console.log("Loaded academies:", academies);
+      setAcademiesList(academies || []);
     } catch (error) {
       console.error("Error loading academies:", error);
+      setAcademiesList([]);
       toast({
         variant: "destructive",
         title: "خطأ",
         description: "فشل في تحميل الأكاديميات"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
   
@@ -166,8 +172,6 @@ const AcademyManager = () => {
   const handleApproveAcademy = async (academy: ExtendedAcademy) => {
     try {
       setLoading(true);
-      // Here you would need the user ID associated with this academy
-      // For now, we'll just update the academy status
       await updateAcademy(academy.id, { isApproved: true });
       await loadAcademies();
       toast({
@@ -257,6 +261,17 @@ const AcademyManager = () => {
     resetForm();
     setDialogOpen(true);
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <SuperadminLayout title="إدارة الأكاديميات">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg">جاري تحميل الأكاديميات...</div>
+        </div>
+      </SuperadminLayout>
+    );
+  }
 
   return (
     <SuperadminLayout title="إدارة الأكاديميات">
@@ -432,81 +447,91 @@ const AcademyManager = () => {
       </Dialog>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {academiesList.map((academy) => (
-          <Card key={academy.id}>
-            <CardHeader className="pb-2">
-              <CardTitle className="flex justify-between items-center">
-                <span>{academy.name}</span>
-                <div className="flex gap-2">
-                  {!academy.isApproved && (
-                    <Button 
-                      size="icon" 
-                      variant="ghost"
-                      className="text-green-600"
-                      onClick={() => handleApproveAcademy(academy)}
-                      disabled={loading}
-                    >
-                      <Check size={16} />
+        {Array.isArray(academiesList) && academiesList.length > 0 ? (
+          academiesList.map((academy) => (
+            <Card key={academy.id}>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex justify-between items-center">
+                  <span>{academy.name}</span>
+                  <div className="flex gap-2">
+                    {!academy.isApproved && (
+                      <Button 
+                        size="icon" 
+                        variant="ghost"
+                        className="text-green-600"
+                        onClick={() => handleApproveAcademy(academy)}
+                        disabled={loading}
+                      >
+                        <Check size={16} />
+                      </Button>
+                    )}
+                    <Button size="icon" variant="ghost" onClick={() => handleEditAcademy(academy)}>
+                      <Pencil size={16} />
                     </Button>
-                  )}
-                  <Button size="icon" variant="ghost" onClick={() => handleEditAcademy(academy)}>
-                    <Pencil size={16} />
-                  </Button>
-                  <Button size="icon" variant="ghost" onClick={() => handleDeleteAcademy(academy.id)}>
-                    <Trash2 size={16} />
-                  </Button>
-                </div>
-              </CardTitle>
-              {!academy.isApproved && (
-                <div className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
-                  في انتظار الموافقة
-                </div>
-              )}
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center">
-                  {academy.logo ? (
-                    <img src={academy.logo} alt={academy.name} className="w-16 h-16 object-contain mr-4 rounded-md" />
-                  ) : (
-                    <div className="w-16 h-16 bg-gray-100 flex items-center justify-center mr-4 rounded-md">
-                      <Building size={24} />
+                    <Button size="icon" variant="ghost" onClick={() => handleDeleteAcademy(academy.id)}>
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+                </CardTitle>
+                {!academy.isApproved && (
+                  <div className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
+                    في انتظار الموافقة
+                  </div>
+                )}
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center">
+                    {academy.logo ? (
+                      <img src={academy.logo} alt={academy.name} className="w-16 h-16 object-contain mr-4 rounded-md" />
+                    ) : (
+                      <div className="w-16 h-16 bg-gray-100 flex items-center justify-center mr-4 rounded-md">
+                        <Building size={24} />
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm text-gray-500">البلد</p>
+                      <p className="font-medium">{academy.country}</p>
                     </div>
-                  )}
+                  </div>
+                  
                   <div>
-                    <p className="text-sm text-gray-500">البلد</p>
-                    <p className="font-medium">{academy.country}</p>
+                    <p className="text-sm text-gray-500">المنسق</p>
+                    <p className="font-medium">{academy.coordinator}</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-gray-500">رقم التواصل</p>
+                    <p className="font-medium">{academy.contactNumber}</p>
                   </div>
                 </div>
-                
-                <div>
-                  <p className="text-sm text-gray-500">المنسق</p>
-                  <p className="font-medium">{academy.coordinator}</p>
+              </CardContent>
+              <CardFooter>
+                <div className="w-full">
+                  <p className="text-sm text-gray-500 mb-2">الفئات المشاركة</p>
+                  <div className="flex flex-wrap gap-2">
+                    {academy.participatingCategories && Array.isArray(academy.participatingCategories) ? (
+                      academy.participatingCategories.map((category) => (
+                        <span 
+                          key={category} 
+                          className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"
+                        >
+                          {category}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-gray-500 text-xs">لا توجد فئات محددة</span>
+                    )}
+                  </div>
                 </div>
-                
-                <div>
-                  <p className="text-sm text-gray-500">رقم التواصل</p>
-                  <p className="font-medium">{academy.contactNumber}</p>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <div className="w-full">
-                <p className="text-sm text-gray-500 mb-2">الفئات المشاركة</p>
-                <div className="flex flex-wrap gap-2">
-                  {academy.participatingCategories.map((category) => (
-                    <span 
-                      key={category} 
-                      className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"
-                    >
-                      {category}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </CardFooter>
-          </Card>
-        ))}
+              </CardFooter>
+            </Card>
+          ))
+        ) : (
+          <div className="col-span-full text-center py-8">
+            <p className="text-gray-500">لا توجد أكاديميات مسجلة</p>
+          </div>
+        )}
       </div>
     </SuperadminLayout>
   );
