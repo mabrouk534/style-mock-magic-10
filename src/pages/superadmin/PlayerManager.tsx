@@ -22,7 +22,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Player, Academy } from "@/types/tournament";
-import { Plus, Pencil, Trash2, CreditCard } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createPlayer, updatePlayer, deletePlayer, getPlayers } from "@/services/playerService";
 import { getAcademies } from "@/services/academyService";
@@ -37,13 +37,6 @@ const positions = [
   "مهاجم"
 ];
 
-const cardTypes = [
-  "هوية",
-  "جواز سفر",
-  "بطاقة اللعب",
-  "تصريح إقامة"
-];
-
 const PlayerManager = () => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [academies, setAcademies] = useState<Academy[]>([]);
@@ -53,7 +46,6 @@ const PlayerManager = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [academyFilter, setAcademyFilter] = useState<string>("all");
-  const [isCardDialogOpen, setIsCardDialogOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -68,13 +60,6 @@ const PlayerManager = () => {
     redCards: 0,
     nationality: "",
     photo: ""
-  });
-  
-  const [cardFormData, setCardFormData] = useState({
-    cardType: "هوية",
-    cardNumber: "",
-    cardExpiry: "",
-    cardImage: ""
   });
   
   const { toast } = useToast();
@@ -109,11 +94,6 @@ const PlayerManager = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleCardInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCardFormData(prev => ({ ...prev, [name]: value }));
-  };
-
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: parseInt(value) || 0 }));
@@ -121,10 +101,6 @@ const PlayerManager = () => {
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleCardSelectChange = (value: string) => {
-    setCardFormData(prev => ({ ...prev, cardType: value }));
   };
   
   const resetForm = () => {
@@ -144,15 +120,6 @@ const PlayerManager = () => {
     setIsEditMode(false);
     setCurrentPlayer(null);
     setIsDialogOpen(false);
-  };
-
-  const resetCardForm = () => {
-    setCardFormData({
-      cardType: "هوية",
-      cardNumber: "",
-      cardExpiry: "",
-      cardImage: ""
-    });
   };
   
   const handleEditPlayer = (player: Player) => {
@@ -227,55 +194,6 @@ const PlayerManager = () => {
         variant: "destructive"
       });
     }
-  };
-
-  const handleCardSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (currentPlayer) {
-      try {
-        const updatedPlayerData = {
-          cardType: cardFormData.cardType,
-          cardNumber: cardFormData.cardNumber,
-          cardExpiry: cardFormData.cardExpiry,
-          cardImage: cardFormData.cardImage
-        };
-
-        await updatePlayer(currentPlayer.id, updatedPlayerData);
-        
-        setPlayers(prev => prev.map(player => 
-          player.id === currentPlayer.id 
-            ? { ...player, ...updatedPlayerData } 
-            : player
-        ));
-        
-        setIsCardDialogOpen(false);
-        resetCardForm();
-        
-        toast({
-          title: "تم تحديث بطاقة اللاعب",
-          description: "تم تحديث معلومات بطاقة اللاعب بنجاح"
-        });
-      } catch (error) {
-        console.error('Error updating player card:', error);
-        toast({
-          title: "خطأ",
-          description: "حدث خطأ في تحديث بطاقة اللاعب",
-          variant: "destructive"
-        });
-      }
-    }
-  };
-
-  const openCardDialog = (player: Player) => {
-    setCurrentPlayer(player);
-    setCardFormData({
-      cardType: player.cardType || "هوية",
-      cardNumber: player.cardNumber || "",
-      cardExpiry: player.cardExpiry || "",
-      cardImage: player.cardImage || ""
-    });
-    setIsCardDialogOpen(true);
   };
 
   const filteredPlayers = players.filter(player => {
@@ -423,6 +341,45 @@ const PlayerManager = () => {
                 </div>
                 
                 <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="goals" className="text-right">الأهداف</Label>
+                  <Input
+                    id="goals"
+                    name="goals"
+                    type="number"
+                    min="0"
+                    value={formData.goals}
+                    onChange={handleNumberChange}
+                    className="col-span-3"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="yellowCards" className="text-right">البطاقات الصفراء</Label>
+                  <Input
+                    id="yellowCards"
+                    name="yellowCards"
+                    type="number"
+                    min="0"
+                    value={formData.yellowCards}
+                    onChange={handleNumberChange}
+                    className="col-span-3"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="redCards" className="text-right">البطاقات الحمراء</Label>
+                  <Input
+                    id="redCards"
+                    name="redCards"
+                    type="number"
+                    min="0"
+                    value={formData.redCards}
+                    onChange={handleNumberChange}
+                    className="col-span-3"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="nationality" className="text-right">الجنسية</Label>
                   <Input
                     id="nationality"
@@ -516,14 +473,15 @@ const PlayerManager = () => {
               <TableHead>المركز</TableHead>
               <TableHead>رقم القميص</TableHead>
               <TableHead>الأهداف</TableHead>
-              <TableHead>البطاقات</TableHead>
+              <TableHead>البطاقات الصفراء</TableHead>
+              <TableHead>البطاقات الحمراء</TableHead>
               <TableHead>الإجراءات</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredPlayers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-4">
+                <TableCell colSpan={9} className="text-center py-4">
                   {loading ? "جاري التحميل..." : "لا يوجد لاعبين متطابقين مع معايير البحث"}
                 </TableCell>
               </TableRow>
@@ -537,14 +495,14 @@ const PlayerManager = () => {
                   <TableCell>{player.jerseyNumber}</TableCell>
                   <TableCell>{player.goals}</TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                        {player.yellowCards}
-                      </span>
-                      <span className="bg-red-100 text-red-800 px-2 py-1 rounded">
-                        {player.redCards}
-                      </span>
-                    </div>
+                    <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                      {player.yellowCards}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="bg-red-100 text-red-800 px-2 py-1 rounded">
+                      {player.redCards}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -554,14 +512,6 @@ const PlayerManager = () => {
                       <Button size="sm" variant="ghost" onClick={() => handleDeletePlayer(player.id)}>
                         <Trash2 size={16} />
                       </Button>
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        onClick={() => openCardDialog(player)} 
-                        className="text-purple-500 hover:text-purple-700"
-                      >
-                        <CreditCard size={16} />
-                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -570,99 +520,6 @@ const PlayerManager = () => {
           </TableBody>
         </Table>
       </div>
-
-      {/* Card Management Dialog */}
-      <Dialog open={isCardDialogOpen} onOpenChange={setIsCardDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>إدارة بطاقات اللاعب</DialogTitle>
-          </DialogHeader>
-          
-          <form onSubmit={handleCardSubmit}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="cardType" className="text-right">نوع البطاقة</Label>
-                <Select 
-                  value={cardFormData.cardType} 
-                  onValueChange={handleCardSelectChange}
-                >
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="اختر نوع البطاقة" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {cardTypes.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="cardNumber" className="text-right">رقم البطاقة</Label>
-                <Input
-                  id="cardNumber"
-                  name="cardNumber"
-                  value={cardFormData.cardNumber}
-                  onChange={handleCardInputChange}
-                  className="col-span-3"
-                  required
-                />
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="cardExpiry" className="text-right">تاريخ الانتهاء</Label>
-                <Input
-                  id="cardExpiry"
-                  name="cardExpiry"
-                  type="date"
-                  value={cardFormData.cardExpiry}
-                  onChange={handleCardInputChange}
-                  className="col-span-3"
-                  required
-                />
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="cardImage" className="text-right">صورة البطاقة (URL)</Label>
-                <Input
-                  id="cardImage"
-                  name="cardImage"
-                  type="url"
-                  value={cardFormData.cardImage}
-                  onChange={handleCardInputChange}
-                  className="col-span-3"
-                />
-              </div>
-
-              {cardFormData.cardImage && (
-                <div className="mt-2">
-                  <Label className="block mb-2">معاينة الصورة</Label>
-                  <img 
-                    src={cardFormData.cardImage} 
-                    alt="صورة البطاقة" 
-                    className="max-h-40 border rounded"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = 'https://placehold.co/300x200/e2e8f0/64748b?text=صورة+غير+متوفرة';
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-            
-            <DialogFooter>
-              <Button variant="outline" type="button" onClick={() => setIsCardDialogOpen(false)}>
-                إلغاء
-              </Button>
-              <Button type="submit">
-                حفظ البطاقة
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
     </SuperadminLayout>
   );
 };
