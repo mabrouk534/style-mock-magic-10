@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import SuperadminLayout from "@/components/SuperadminLayout";
 import { Button } from "@/components/ui/button";
@@ -20,50 +21,11 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { Player } from "@/types/tournament";
+import { Player, Academy } from "@/types/tournament";
 import { Plus, Pencil, Trash2, CreditCard } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { players, academies } from "@/data";
-
-// Mock initial data for players
-const initialPlayers: Player[] = [
-  {
-    id: "player-1",
-    name: "أحمد محمد",
-    academy: "academy-1",
-    category: "تحت 14 سنة",
-    dateOfBirth: "2010-05-15",
-    goals: 3,
-    yellowCards: 1,
-    redCards: 0,
-    position: "مهاجم",
-    jerseyNumber: 10
-  },
-  {
-    id: "player-2",
-    name: "سعيد خالد",
-    academy: "academy-2",
-    category: "تحت 16 سنة",
-    dateOfBirth: "2008-11-20",
-    goals: 1,
-    yellowCards: 0,
-    redCards: 0,
-    position: "وسط",
-    jerseyNumber: 8
-  },
-  {
-    id: "player-3",
-    name: "فهد العامري",
-    academy: "academy-1",
-    category: "تحت 18 سنة",
-    dateOfBirth: "2007-03-10",
-    goals: 0,
-    yellowCards: 2,
-    redCards: 0,
-    position: "مدافع",
-    jerseyNumber: 4
-  }
-];
+import { createPlayer, updatePlayer, deletePlayer, getPlayers } from "@/services/playerService";
+import { getAcademies } from "@/services/academyService";
 
 const positions = [
   "حارس مرمى",
@@ -75,7 +37,6 @@ const positions = [
   "مهاجم"
 ];
 
-// Card types for player
 const cardTypes = [
   "هوية",
   "جواز سفر",
@@ -85,12 +46,15 @@ const cardTypes = [
 
 const PlayerManager = () => {
   const [players, setPlayers] = useState<Player[]>([]);
+  const [academies, setAcademies] = useState<Academy[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("");
   const [academyFilter, setAcademyFilter] = useState<string>("");
   const [isCardDialogOpen, setIsCardDialogOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -106,7 +70,6 @@ const PlayerManager = () => {
     photo: ""
   });
   
-  // Card form data
   const [cardFormData, setCardFormData] = useState({
     cardType: "هوية",
     cardNumber: "",
@@ -117,9 +80,29 @@ const PlayerManager = () => {
   const { toast } = useToast();
   
   useEffect(() => {
-    // Load players from mock data
-    setPlayers([...initialPlayers]);
+    loadData();
   }, []);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [playersData, academiesData] = await Promise.all([
+        getPlayers(),
+        getAcademies()
+      ]);
+      setPlayers(playersData);
+      setAcademies(academiesData);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ في تحميل البيانات",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -160,6 +143,7 @@ const PlayerManager = () => {
     });
     setIsEditMode(false);
     setCurrentPlayer(null);
+    setIsDialogOpen(false);
   };
 
   const resetCardForm = () => {
@@ -187,76 +171,104 @@ const PlayerManager = () => {
       nationality: player.nationality || "",
       photo: player.photo || ""
     });
+    setIsDialogOpen(true);
   };
   
-  const handleDeletePlayer = (id: string) => {
-    setPlayers(prev => prev.filter(player => player.id !== id));
-    toast({
-      title: "تم حذف اللاعب",
-      description: "تم حذف اللاعب بنجاح"
-    });
-  };
-  
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (isEditMode && currentPlayer) {
-      // Update existing player
-      const updatedPlayers = players.map(player => 
-        player.id === currentPlayer.id ? { ...player, ...formData } : player
-      );
-      setPlayers(updatedPlayers);
+  const handleDeletePlayer = async (id: string) => {
+    try {
+      await deletePlayer(id);
+      setPlayers(prev => prev.filter(player => player.id !== id));
       toast({
-        title: "تم تحديث معلومات اللاعب",
-        description: "تم تحديث معلومات اللاعب بنجاح"
+        title: "تم حذف اللاعب",
+        description: "تم حذف اللاعب بنجاح"
       });
-    } else {
-      // Create new player
-      const newPlayer: Player = {
-        id: `player-${Date.now()}`,
-        ...formData
-      };
-      setPlayers(prev => [...prev, newPlayer]);
+    } catch (error) {
+      console.error('Error deleting player:', error);
       toast({
-        title: "تمت إضافة اللاعب",
-        description: "تمت إضافة اللاعب بنجاح"
+        title: "خطأ",
+        description: "حدث خطأ في حذف اللاعب",
+        variant: "destructive"
       });
     }
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-    resetForm();
+    try {
+      if (isEditMode && currentPlayer) {
+        await updatePlayer(currentPlayer.id, formData);
+        setPlayers(prev => prev.map(player => 
+          player.id === currentPlayer.id ? { ...player, ...formData } : player
+        ));
+        toast({
+          title: "تم تحديث معلومات اللاعب",
+          description: "تم تحديث معلومات اللاعب بنجاح"
+        });
+      } else {
+        const newPlayerId = await createPlayer(formData);
+        const newPlayer: Player = {
+          id: newPlayerId,
+          ...formData
+        };
+        setPlayers(prev => [...prev, newPlayer]);
+        toast({
+          title: "تمت إضافة اللاعب",
+          description: "تمت إضافة اللاعب بنجاح"
+        });
+      }
+      
+      resetForm();
+    } catch (error) {
+      console.error('Error saving player:', error);
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ في حفظ البيانات",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleCardSubmit = (e: React.FormEvent) => {
+  const handleCardSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (currentPlayer) {
-      // Update player with card information
-      const updatedPlayers = players.map(player => 
-        player.id === currentPlayer.id 
-          ? { 
-              ...player, 
-              cardType: cardFormData.cardType,
-              cardNumber: cardFormData.cardNumber,
-              cardExpiry: cardFormData.cardExpiry,
-              cardImage: cardFormData.cardImage
-            } 
-          : player
-      );
-      
-      setPlayers(updatedPlayers);
-      setIsCardDialogOpen(false);
-      resetCardForm();
-      
-      toast({
-        title: "تم تحديث بطاقة اللاعب",
-        description: "تم تحديث معلومات بطاقة اللاعب بنجاح"
-      });
+      try {
+        const updatedPlayerData = {
+          cardType: cardFormData.cardType,
+          cardNumber: cardFormData.cardNumber,
+          cardExpiry: cardFormData.cardExpiry,
+          cardImage: cardFormData.cardImage
+        };
+
+        await updatePlayer(currentPlayer.id, updatedPlayerData);
+        
+        setPlayers(prev => prev.map(player => 
+          player.id === currentPlayer.id 
+            ? { ...player, ...updatedPlayerData } 
+            : player
+        ));
+        
+        setIsCardDialogOpen(false);
+        resetCardForm();
+        
+        toast({
+          title: "تم تحديث بطاقة اللاعب",
+          description: "تم تحديث معلومات بطاقة اللاعب بنجاح"
+        });
+      } catch (error) {
+        console.error('Error updating player card:', error);
+        toast({
+          title: "خطأ",
+          description: "حدث خطأ في تحديث بطاقة اللاعب",
+          variant: "destructive"
+        });
+      }
     }
   };
 
   const openCardDialog = (player: Player) => {
     setCurrentPlayer(player);
-    // Pre-populate form if card data exists
     setCardFormData({
       cardType: player.cardType || "هوية",
       cardNumber: player.cardNumber || "",
@@ -278,6 +290,16 @@ const PlayerManager = () => {
     return academy ? academy.name : academyId;
   };
 
+  if (loading) {
+    return (
+      <SuperadminLayout title="إدارة اللاعبين">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">جاري التحميل...</div>
+        </div>
+      </SuperadminLayout>
+    );
+  }
+
   return (
     <SuperadminLayout title="إدارة اللاعبين">
       <div className="mb-6 flex justify-between items-center">
@@ -288,9 +310,12 @@ const PlayerManager = () => {
           </p>
         </div>
         
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center gap-2" onClick={resetForm}>
+            <Button className="flex items-center gap-2" onClick={() => {
+              resetForm();
+              setIsDialogOpen(true);
+            }}>
               <Plus size={16} />
               <span>إضافة لاعب</span>
             </Button>
@@ -452,7 +477,7 @@ const PlayerManager = () => {
                 <SelectValue placeholder="جميع الفئات" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">جميع الفئات</SelectItem>
+                <SelectItem value="">جميع الفئات</SelectItem>
                 <SelectItem value="تحت 14 سنة">تحت 14 سنة</SelectItem>
                 <SelectItem value="تحت 16 سنة">تحت 16 سنة</SelectItem>
                 <SelectItem value="تحت 18 سنة">تحت 18 سنة</SelectItem>
@@ -469,7 +494,7 @@ const PlayerManager = () => {
                 <SelectValue placeholder="جميع الأكاديميات" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">جميع الأكاديميات</SelectItem>
+                <SelectItem value="">جميع الأكاديميات</SelectItem>
                 {academies.map((academy) => (
                   <SelectItem key={academy.id} value={academy.id}>
                     {academy.name}
@@ -499,7 +524,7 @@ const PlayerManager = () => {
             {filteredPlayers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-4">
-                  لا يوجد لاعبين متطابقين مع معايير البحث
+                  {loading ? "جاري التحميل..." : "لا يوجد لاعبين متطابقين مع معايير البحث"}
                 </TableCell>
               </TableRow>
             ) : (
@@ -523,14 +548,14 @@ const PlayerManager = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button size="icon" variant="ghost" onClick={() => handleEditPlayer(player)}>
+                      <Button size="sm" variant="ghost" onClick={() => handleEditPlayer(player)}>
                         <Pencil size={16} />
                       </Button>
-                      <Button size="icon" variant="ghost" onClick={() => handleDeletePlayer(player.id)}>
+                      <Button size="sm" variant="ghost" onClick={() => handleDeletePlayer(player.id)}>
                         <Trash2 size={16} />
                       </Button>
                       <Button 
-                        size="icon" 
+                        size="sm" 
                         variant="ghost" 
                         onClick={() => openCardDialog(player)} 
                         className="text-purple-500 hover:text-purple-700"
