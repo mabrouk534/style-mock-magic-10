@@ -1,4 +1,3 @@
-
 export interface Academy {
   id: string;
   name: string;
@@ -7,6 +6,7 @@ export interface Academy {
   coordinator: string;
   contactNumber: string;
   participatingCategories: string[];
+  isApproved?: boolean;
 }
 
 export interface Match {
